@@ -1,0 +1,29 @@
+{
+ "name": "Medtech Co",
+ "description": "",
+ "jobs": [
+  {
+   "title": "R&D Engineer I",
+   "shortcode": "ABC123",
+   "employment_type": "Full-time",
+   "telecommuting": false,
+   "department": "Engineering",
+   "url": "https://apply.workable.com/medtechco/j/ABC123/",
+   "application_url": "https://apply.workable.com/medtechco/j/ABC123/apply/",
+   "published_on": "2026-10-15",
+   "country": "United States",
+   "city": "San Diego",
+   "state": "California",
+   "locations": [
+    {
+     "country": "United States",
+     "countryCode": "US",
+     "city": "San Diego",
+     "region": "California",
+     "hidden": false
+    }
+   ],
+   "description": "<p>Design medical devices. CAD required.</p>"
+  }
+ ]
+}

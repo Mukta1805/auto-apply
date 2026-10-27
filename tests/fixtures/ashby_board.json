@@ -1,0 +1,40 @@
+{
+ "apiVersion": "1",
+ "jobs": [
+  {
+   "id": "9f8e",
+   "title": "Founder's Associate",
+   "department": "Operations",
+   "team": "CEO Office",
+   "employmentType": "FullTime",
+   "location": "New York, NY",
+   "secondaryLocations": [],
+   "publishedAt": "2026-10-23T12:00:00.000Z",
+   "isListed": true,
+   "isRemote": false,
+   "workplaceType": "OnSite",
+   "address": {
+    "postalAddress": {
+     "addressCountry": "United States",
+     "addressRegion": "NY",
+     "addressLocality": "New York"
+    }
+   },
+   "jobUrl": "https://jobs.ashbyhq.com/aibio/9f8e",
+   "applyUrl": "https://jobs.ashbyhq.com/aibio/9f8e/application",
+   "descriptionPlain": "Work directly with the CEO on strategy and GTM.",
+   "compensation": {
+    "compensationTierSummary": "$90K - $110K"
+   }
+  },
+  {
+   "id": "hidden1",
+   "title": "Associate",
+   "isListed": false,
+   "location": "NYC",
+   "jobUrl": "",
+   "applyUrl": "",
+   "descriptionPlain": ""
+  }
+ ]
+}

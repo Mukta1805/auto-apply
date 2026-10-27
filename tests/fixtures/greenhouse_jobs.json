@@ -1,0 +1,80 @@
+{
+ "jobs": [
+  {
+   "id": 4001,
+   "title": "Business Development Associate",
+   "absolute_url": "https://job-boards.greenhouse.io/acmebio/jobs/4001",
+   "location": {
+    "name": "South San Francisco, CA"
+   },
+   "updated_at": "2026-10-20T10:00:00-04:00",
+   "first_published": "2026-10-18T09:00:00-04:00",
+   "content": "&lt;p&gt;Join our &lt;strong&gt;BD team&lt;/strong&gt;.&lt;/p&gt;&lt;ul&gt;&lt;li&gt;0-2 years experience&lt;/li&gt;&lt;li&gt;Life sciences background&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;Visa sponsorship is available.&lt;/p&gt;",
+   "departments": [
+    {
+     "name": "Business Development"
+    }
+   ],
+   "offices": [
+    {
+     "name": "South San Francisco, CA"
+    }
+   ]
+  },
+  {
+   "id": 4002,
+   "title": "Senior Director, Commercial Strategy",
+   "absolute_url": "https://job-boards.greenhouse.io/acmebio/jobs/4002",
+   "location": {
+    "name": "Boston, MA"
+   },
+   "updated_at": "2026-10-21T10:00:00Z",
+   "content": "&lt;p&gt;Lead strategy.&lt;/p&gt;",
+   "departments": [],
+   "offices": []
+  },
+  {
+   "id": 4003,
+   "title": "Research Associate, Downstream Process Development",
+   "absolute_url": "https://job-boards.greenhouse.io/acmebio/jobs/4003",
+   "location": {
+    "name": "Cambridge, MA"
+   },
+   "updated_at": "2026-10-22T10:00:00Z",
+   "content": "&lt;p&gt;Run IEX chromatography and HPLC.&lt;/p&gt;",
+   "departments": [
+    {
+     "name": "Process Development"
+    }
+   ],
+   "offices": []
+  },
+  {
+   "id": 4004,
+   "title": "Strategy Analyst",
+   "absolute_url": "https://job-boards.greenhouse.io/acmebio/jobs/4004",
+   "location": {
+    "name": "London, UK"
+   },
+   "updated_at": "2026-10-22T10:00:00Z",
+   "content": "&lt;p&gt;EMEA strategy.&lt;/p&gt;",
+   "departments": [],
+   "offices": []
+  },
+  {
+   "id": 4005,
+   "title": "Commercial Analyst",
+   "absolute_url": "https://job-boards.greenhouse.io/acmebio/jobs/4005",
+   "location": {
+    "name": "New York, NY"
+   },
+   "updated_at": "2026-10-22T10:00:00Z",
+   "content": "&lt;p&gt;Candidates must be authorized to work in the US without sponsorship now or in the future.&lt;/p&gt;",
+   "departments": [],
+   "offices": []
+  }
+ ],
+ "meta": {
+  "total": 5
+ }
+}

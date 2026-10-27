@@ -1,0 +1,17 @@
+# Lists that steer the tool. Company names must match config/companies.csv.
+
+# Never apply to these companies.
+avoid_companies: []
+
+# Scored a little higher and fetched first (also set priority: 1 in companies.csv).
+dream_companies: []
+
+# Already applied outside the tool, so it won't apply again. Format: "Company|Exact job title"
+already_applied: []
+
+# People already contacted (emails), so outreach never contacts them twice. Phase 2.
+already_contacted: []
+
+# People at target companies who could refer Riya. Phase 2: these replace cold emails.
+# - {company: "Example Bio", name: "Jane Doe", relation: "Nucleate", email: ""}
+warm_connections: []

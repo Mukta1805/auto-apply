@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "riya-job-agent"
+version = "0.1.0"
+description = "Daily job discovery, scoring, application and outreach agent for Riya Sancheti's job search"
+requires-python = ">=3.11"
+readme = "README.md"
+dependencies = [
+    "anthropic>=2.3,<3",
+    "httpx[http2]>=0.28,<1",
+    "openpyxl>=3.1.5,<4",
+    "pyyaml>=6,<7",
+    "python-dotenv>=1,<2",
+    "tzdata>=2024.1; sys_platform == 'win32'",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "pytest-asyncio>=0.24", "respx>=0.21"]
+
+[project.scripts]
+jobagent = "jobagent.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+pythonpath = ["src"]

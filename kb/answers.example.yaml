@@ -1,0 +1,51 @@
+# Standard application answers. Copy to kb/answers.yaml (git-ignored) and fill in.
+# The tool never improvises these: legal and work-authorization answers come only from this file.
+
+identity:
+  legal_first_name: ""
+  legal_last_name: ""
+  preferred_name: ""
+  email: ""
+  phone: ""
+  address_line1: ""
+  city: ""
+  state: ""
+  postal_code: ""
+  country: "United States"
+  linkedin_url: ""
+  website_url: ""
+
+work_authorization:
+  authorized_to_work_in_us: "Yes"          # on OPT / STEM OPT
+  requires_sponsorship_now_or_future: "Yes"
+  visa_status: "F-1, OPT (STEM OPT eligible)"
+  opt_ead_expected_start: ""               # YYYY-MM-DD
+  opt_ead_expected_end: ""
+
+availability:
+  earliest_start_date: "Early January 2027"
+  willing_to_relocate: "Yes"
+  work_arrangement: "On-site, hybrid or remote"
+
+compensation:
+  expected_salary_text: "$80,000 - $90,000"
+  minimum_base_usd: 80000
+
+education:
+  - {school: "Columbia University", degree: "MS, Biomedical Engineering", gpa: "3.91", end: "2026-12"}
+  - {school: "MIT-ADT University", degree: "B.Tech, Bioengineering", gpa: "3.90", end: "2025-06"}
+
+defaults:
+  how_did_you_hear: "Company careers page"
+  over_18: "Yes"
+  previously_employed_here: "No"
+  background_check_consent: "Yes"
+
+eeo:                                       # "Decline to self-identify" unless Riya chooses otherwise
+  gender: "Decline to self-identify"
+  race_ethnicity: "Decline to self-identify"
+  veteran_status: "Decline to self-identify"
+  disability_status: "Decline to self-identify"
+
+references: []
+# - {name: "", title: "", company: "", email: "", phone: "", relation: ""}

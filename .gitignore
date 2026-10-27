@@ -1,0 +1,47 @@
+# --- Secrets & personal data (never commit) ---
+.env
+.env.*
+!.env.example
+kb/answers.yaml
+kb/resumes/*.pdf
+kb/resumes/*.docx
+credentials/
+*.token.json
+token.json
+client_secret*.json
+
+# --- Runtime output ---
+data/*
+!data/.gitkeep
+output/*
+!output/.gitkeep
+logs/*
+!logs/.gitkeep
+*.lock
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# --- Browser automation (phase 2) ---
+browser_profile/
+playwright-report/
+
+# --- OS / editors ---
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+~$*.xlsx

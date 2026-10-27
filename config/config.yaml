@@ -1,0 +1,213 @@
+# Riya job agent - main configuration.
+# Paths are relative to the repo root.
+
+run:
+  timezone: America/New_York
+  # Applications per day once auto-apply is on (phase 2). Never lowers the bar to hit the minimum.
+  daily_application_target: {min: 25, max: 50}
+  # Share of daily applications per track.
+  track_split: {business: 0.6, research: 0.4}
+  # A run older than this holding the lock is treated as crashed.
+  stale_lock_hours: 6
+
+paths:
+  db: data/jobagent.db
+  output_dir: output
+  logs_dir: logs
+  kb_dir: kb
+  companies_csv: config/companies.csv
+  workbook: output/riya_job_tracker.xlsx
+
+logging:
+  level: INFO            # file log level (DEBUG for troubleshooting)
+  console_level: INFO
+  retention_days: 30     # daily-rotated logs kept this many days
+  json_log: true         # also write logs/jobagent.jsonl (one JSON object per line)
+
+fetch:
+  max_concurrency: 24          # total simultaneous HTTP requests
+  per_host_concurrency: 6      # per job-board host, to stay polite
+  timeout_seconds: 20
+  max_retries: 4               # on 429 / 5xx / network errors, exponential backoff
+  hydrate_concurrency: 8       # detail-page fetches (SmartRecruiters)
+
+filters:
+  max_posting_age_days: 45
+  allow_remote_without_country: true   # "Remote" with no country -> kept, flagged for the scorer
+
+  # Title must contain at least one of these (either track) to be considered.
+  role_keywords:
+    business:
+      - associate
+      - analyst
+      - strategy
+      - business development
+      - commercial
+      - go-to-market
+      - gtm
+      - partnerships
+      - partner
+      - operations
+      - bizops
+      - consultant
+      - consulting
+      - product
+      - market access
+      - competitive intelligence
+      - market research
+      - market development
+      - customer success
+      - solutions
+      - founder
+      - ceo office
+      - chief of staff
+      - growth
+      - insights
+    research:
+      - research
+      - scientist
+      - process development
+      - analytical development
+      - msat
+      - manufacturing science
+      - laboratory
+      - lab
+      - r&d
+      - biomedical engineer
+      - bioengineer
+      - bioprocess
+      - field application
+      - application scientist
+      - applications scientist
+      - clinical research
+      - technician
+      - fellow
+      - purification
+      - assay
+      - downstream
+      - upstream
+      - cell culture
+
+  # Titles containing any of these are dropped (too senior, wrong function, or not wanted).
+  exclude_title_keywords:
+    - senior
+    - "sr."
+    - "sr "
+    - principal
+    - staff
+    - director
+    - vice president
+    - "vp"
+    - head of
+    - chief
+    - executive director
+    - intern
+    - internship
+    - co-op
+    - postdoc
+    - postdoctoral
+    - nurse
+    - physician
+    - pharmacist
+    - dentist
+    - therapist
+    - software engineer
+    - frontend
+    - backend
+    - full stack
+    - full-stack
+    - devops
+    - site reliability
+    - machine learning engineer
+    - data engineer
+    - security engineer
+    - account executive
+    - recruiter
+    - attorney
+    - counsel
+    - paralegal
+    - accountant
+    - controller
+  # Phrases that override an exclusion (e.g. allow "Associate Product Manager").
+  exclude_exceptions:
+    - associate product manager
+    - associate scientist
+    - research associate
+    - chief of staff
+    - founder's associate
+    - founders associate
+  # Exclude "manager" titles unless an exception above matches.
+  exclude_manager_titles: true
+
+  # Description phrases that mean the employer will not sponsor (regex, case-insensitive).
+  sponsorship_blockers:
+    - "no (visa )?sponsorship"
+    - "not (be )?(able|eligible) to (provide )?(visa )?sponsor"
+    - "unable to (provide )?(visa )?sponsor"
+    - "will not (provide )?(visa )?sponsor"
+    - "cannot (provide )?(visa )?sponsor"
+    - "can ?not (provide )?(visa )?sponsor"
+    - "do(es)? not (offer|provide|support) (visa |immigration )?sponsorship"
+    - "(is|are) not (offering|providing|available)[^.]{0,30}sponsorship"
+    - "without (the need for )?(current or future |now or in the future )?(visa |employment )?sponsorship"
+    - "sponsorship (is )?not (available|offered|provided)"
+    - "u\\.?s\\.? citizens? only"
+    - "must be (a )?u\\.?s\\.? citizen"
+    - "u\\.?s\\.? citizenship (is )?required"
+    - "requires? u\\.?s\\.? citizenship"
+    - "green card holders? only"
+    - "security clearance"
+    - "itar"
+  # Phrases suggesting sponsorship is possible (shown as a flag, not a filter).
+  sponsorship_positive:
+    - "visa sponsorship (is )?available"
+    - "will sponsor"
+    - "(able|willing) to sponsor"
+    - "sponsorship (is )?available"
+    - "h-?1b sponsorship"
+    - "opt/cpt"
+    - "stem opt"
+
+scoring:
+  model: claude-haiku-5-5
+  effort: low                 # low | medium | high - low is cheapest and enough for scoring
+  mode: realtime              # realtime | batch (batch = 50% cheaper, results can take longer)
+  max_concurrency: 8          # simultaneous scoring requests in realtime mode
+  max_output_tokens: 700
+  max_description_chars: 7000 # job descriptions are trimmed to this length
+  max_jobs_per_run: 600       # cost guard
+  thresholds: {high: 75, medium: 50}
+  batch_poll_seconds: 30
+  batch_max_wait_minutes: 45  # if not done, results are collected on the next run
+  cache_ttl: 1h               # prompt cache lifetime for the profile block (5m | 1h)
+
+writing:                      # phase 2: custom answers and emails
+  model: claude-sonnet-5-5
+  effort: medium
+
+budget:
+  max_daily_usd: 10.0         # scoring stops launching new requests past this
+
+# USD per million tokens. Check https://platform.claude.com/docs/en/about-claude/pricing
+pricing:
+  batch_discount: 0.5
+  models:
+    claude-haiku-5-5:  {input: 0.10, output: 0.50, cache_write: 0.125, cache_write_1h: 0.20, cache_read: 0.01}
+    claude-sonnet-5-5: {input: 2.00, output: 10.00, cache_write: 2.50, cache_write_1h: 4.00, cache_read: 0.20}
+    claude-opus-5-5:   {input: 4.00, output: 20.00, cache_write: 5.00, cache_write_1h: 8.00, cache_read: 0.20}
+
+workbook:
+  low_match_max_rows: 400
+  filtered_out_days: 3        # "Filtered Out" tab shows jobs dropped in the last N days
+  status_options: ["", "apply", "skip", "applied (manual)", "interviewing", "rejected", "offer"]
+
+apply:                        # phase 2
+  enabled: false
+  dry_run: true
+  max_per_company_30d: 2
+
+outreach:                     # phase 2
+  enabled: false
+  mode: draft                 # draft | send
+  max_new_emails_per_day: 30
+  follow_up_days: [4, 9]

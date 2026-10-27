@@ -1,0 +1,51 @@
+{
+ "offset": 0,
+ "limit": 100,
+ "totalFound": 2,
+ "content": [
+  {
+   "id": "744000011",
+   "name": "Market Access Analyst",
+   "company": {
+    "identifier": "ConsultCo",
+    "name": "ConsultCo"
+   },
+   "releasedDate": "2026-10-24T08:00:00.000Z",
+   "location": {
+    "city": "New York",
+    "region": "NY",
+    "country": "us",
+    "remote": false,
+    "fullLocation": "New York, NY, United States"
+   },
+   "department": {
+    "label": "Market Access"
+   },
+   "typeOfEmployment": {
+    "label": "Full-time"
+   }
+  },
+  {
+   "id": "744000012",
+   "name": "Clinical Research Coordinator",
+   "company": {
+    "identifier": "ConsultCo",
+    "name": "ConsultCo"
+   },
+   "releasedDate": "2026-10-24T08:00:00.000Z",
+   "location": {
+    "city": "Toronto",
+    "region": "ON",
+    "country": "ca",
+    "remote": false,
+    "fullLocation": "Toronto, ON, Canada"
+   },
+   "department": {
+    "label": "Clinical"
+   },
+   "typeOfEmployment": {
+    "label": "Full-time"
+   }
+  }
+ ]
+}

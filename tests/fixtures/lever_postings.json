@@ -1,0 +1,52 @@
+[
+ {
+  "id": "a1b2-c3",
+  "text": "Associate Scientist, Organ-on-Chip",
+  "hostedUrl": "https://jobs.lever.co/chipco/a1b2-c3",
+  "applyUrl": "https://jobs.lever.co/chipco/a1b2-c3/apply",
+  "createdAt": 1792500000000,
+  "country": "US",
+  "workplaceType": "onsite",
+  "categories": {
+   "location": "Boston, MA",
+   "allLocations": [
+    "Boston, MA"
+   ],
+   "team": "R&D",
+   "department": "Science",
+   "commitment": "Full-time"
+  },
+  "descriptionPlain": "Build microphysiological systems.",
+  "lists": [
+   {
+    "text": "Requirements",
+    "content": "<li>Cell culture</li><li>Microfluidics</li>"
+   }
+  ],
+  "additionalPlain": "We sponsor visas.",
+  "salaryRange": {
+   "min": 85000,
+   "max": 100000,
+   "currency": "USD",
+   "interval": "per-year-salary"
+  }
+ },
+ {
+  "id": "d4e5-f6",
+  "text": "GTM Associate",
+  "hostedUrl": "https://jobs.lever.co/chipco/d4e5-f6",
+  "applyUrl": "https://jobs.lever.co/chipco/d4e5-f6/apply",
+  "createdAt": 1792600000000,
+  "workplaceType": "remote",
+  "categories": {
+   "location": "Remote",
+   "allLocations": [
+    "Remote"
+   ],
+   "commitment": "Full-time"
+  },
+  "descriptionPlain": "Own outbound to biotech customers.",
+  "lists": [],
+  "additionalPlain": ""
+ }
+]
