@@ -1,0 +1,600 @@
+{
+ "url": "https://jobs.lever.co/synthego/19694157-b0bf-4dcd-add3-7b2efe9f24f7/apply",
+ "title": "Synthego - Scientific Associate Product Marketing Manager",
+ "_source": "Captured live 2026-10-27 with src/jobagent/apply/extract_fields.js in a real browser (read-only).",
+ "fields": [
+  {
+   "selector": "#resume-upload-input",
+   "tag": "input",
+   "type": "file",
+   "name": "resume",
+   "id": "resume-upload-input",
+   "label": "Resume/CV",
+   "required": true,
+   "placeholder": "",
+   "maxlength": null,
+   "accept": ""
+  },
+  {
+   "selector": "input[name=\"name\"]",
+   "tag": "input",
+   "type": "text",
+   "name": "name",
+   "id": "",
+   "label": "Full name",
+   "required": true,
+   "placeholder": "",
+   "maxlength": null
+  },
+  {
+   "selector": "input[name=\"pronouns\"]",
+   "tag": "input",
+   "type": "checkbox",
+   "name": "pronouns",
+   "id": "",
+   "label": "Pronouns",
+   "required": false,
+   "placeholder": "",
+   "maxlength": null,
+   "options": [
+    {
+     "value": "He/him",
+     "text": "He/him"
+    },
+    {
+     "value": "She/her",
+     "text": "She/her"
+    },
+    {
+     "value": "They/them",
+     "text": "They/them"
+    },
+    {
+     "value": "Xe/xem",
+     "text": "Xe/xem"
+    },
+    {
+     "value": "Ze/hir",
+     "text": "Ze/hir"
+    },
+    {
+     "value": "Ey/em",
+     "text": "Ey/em"
+    },
+    {
+     "value": "Hir/hir",
+     "text": "Hir/hir"
+    },
+    {
+     "value": "Fae/faer",
+     "text": "Fae/faer"
+    },
+    {
+     "value": "Hu/hu",
+     "text": "Hu/hu"
+    },
+    {
+     "value": "Use name only",
+     "text": "Use name only"
+    }
+   ]
+  },
+  {
+   "selector": "#customPronounsOption",
+   "tag": "input",
+   "type": "checkbox",
+   "name": "",
+   "id": "customPronounsOption",
+   "label": "Pronouns",
+   "required": false,
+   "placeholder": "",
+   "maxlength": null,
+   "options": [
+    {
+     "value": "Custom",
+     "text": "Custom"
+    }
+   ]
+  },
+  {
+   "selector": "input[name=\"email\"]",
+   "tag": "input",
+   "type": "email",
+   "name": "email",
+   "id": "",
+   "label": "Email",
+   "required": true,
+   "placeholder": "",
+   "maxlength": null
+  },
+  {
+   "selector": "input[name=\"phone\"]",
+   "tag": "input",
+   "type": "text",
+   "name": "phone",
+   "id": "",
+   "label": "Phone",
+   "required": true,
+   "placeholder": "",
+   "maxlength": null
+  },
+  {
+   "selector": "#location-input",
+   "tag": "input",
+   "type": "text",
+   "name": "location",
+   "id": "location-input",
+   "label": "Current location No location found. Try entering a different locationLoading",
+   "required": false,
+   "placeholder": "",
+   "maxlength": 100
+  },
+  {
+   "selector": "input[name=\"org\"]",
+   "tag": "input",
+   "type": "text",
+   "name": "org",
+   "id": "",
+   "label": "Current company",
+   "required": false,
+   "placeholder": "",
+   "maxlength": null
+  },
+  {
+   "selector": "input[name=\"urls[LinkedIn]\"]",
+   "tag": "input",
+   "type": "text",
+   "name": "urls[LinkedIn]",
+   "id": "",
+   "label": "LinkedIn URL",
+   "required": false,
+   "placeholder": "",
+   "maxlength": null
+  },
+  {
+   "selector": "input[name=\"urls[Twitter]\"]",
+   "tag": "input",
+   "type": "text",
+   "name": "urls[Twitter]",
+   "id": "",
+   "label": "Twitter URL",
+   "required": false,
+   "placeholder": "",
+   "maxlength": null
+  },
+  {
+   "selector": "input[name=\"urls[GitHub]\"]",
+   "tag": "input",
+   "type": "text",
+   "name": "urls[GitHub]",
+   "id": "",
+   "label": "GitHub URL",
+   "required": false,
+   "placeholder": "",
+   "maxlength": null
+  },
+  {
+   "selector": "input[name=\"urls[Portfolio]\"]",
+   "tag": "input",
+   "type": "text",
+   "name": "urls[Portfolio]",
+   "id": "",
+   "label": "Portfolio URL",
+   "required": false,
+   "placeholder": "",
+   "maxlength": null
+  },
+  {
+   "selector": "input[name=\"cards[40d5561b-13ba-4013-a0b4-1f80a2e2041c][field0]\"]",
+   "tag": "input",
+   "type": "radio",
+   "name": "cards[40d5561b-13ba-4013-a0b4-1f80a2e2041c][field0]",
+   "id": "",
+   "label": "Are you legally authorized to work in the United States for any employer?",
+   "required": true,
+   "placeholder": "",
+   "maxlength": null,
+   "options": [
+    {
+     "value": "Yes",
+     "text": "Yes"
+    },
+    {
+     "value": "No",
+     "text": "No"
+    }
+   ]
+  },
+  {
+   "selector": "input[name=\"cards[40d5561b-13ba-4013-a0b4-1f80a2e2041c][field1]\"]",
+   "tag": "input",
+   "type": "text",
+   "name": "cards[40d5561b-13ba-4013-a0b4-1f80a2e2041c][field1]",
+   "id": "",
+   "label": "Will you now or in the future require sponsorship for work authorization (e.g., H-1B sponsorship/transfer, OPT, TN, etc.)?",
+   "required": true,
+   "placeholder": "Type your response",
+   "maxlength": null
+  },
+  {
+   "selector": "input[name=\"cards[40d5561b-13ba-4013-a0b4-1f80a2e2041c][field2]\"]",
+   "tag": "input",
+   "type": "text",
+   "name": "cards[40d5561b-13ba-4013-a0b4-1f80a2e2041c][field2]",
+   "id": "",
+   "label": "How soon would you be able to start if presented with a job offer?",
+   "required": true,
+   "placeholder": "Type your response",
+   "maxlength": null
+  },
+  {
+   "selector": "input[name=\"cards[40d5561b-13ba-4013-a0b4-1f80a2e2041c][field3]\"]",
+   "tag": "input",
+   "type": "text",
+   "name": "cards[40d5561b-13ba-4013-a0b4-1f80a2e2041c][field3]",
+   "id": "",
+   "label": "How did you hear about this role?",
+   "required": true,
+   "placeholder": "Type your response",
+   "maxlength": null
+  },
+  {
+   "selector": "select[name=\"eeo[gender]\"]",
+   "tag": "select",
+   "type": "select",
+   "name": "eeo[gender]",
+   "id": "",
+   "label": "Gender",
+   "required": false,
+   "placeholder": "",
+   "maxlength": null,
+   "options": [
+    {
+     "value": "",
+     "text": "Select ..."
+    },
+    {
+     "value": "Male",
+     "text": "Male"
+    },
+    {
+     "value": "Female",
+     "text": "Female"
+    },
+    {
+     "value": "Decline to self-identify",
+     "text": "Decline to self-identify"
+    }
+   ]
+  },
+  {
+   "selector": "select[name=\"eeo[race]\"]",
+   "tag": "select",
+   "type": "select",
+   "name": "eeo[race]",
+   "id": "",
+   "label": "Race",
+   "required": false,
+   "placeholder": "",
+   "maxlength": null,
+   "options": [
+    {
+     "value": "",
+     "text": "Select ..."
+    },
+    {
+     "value": "Hispanic or Latino",
+     "text": "Hispanic or Latino"
+    },
+    {
+     "value": "White (Not Hispanic or Latino)",
+     "text": "White (Not Hispanic or Latino)"
+    },
+    {
+     "value": "Black or African American (Not Hispanic or Latino)",
+     "text": "Black or African American (Not Hispanic or Latino)"
+    },
+    {
+     "value": "Native Hawaiian or Other Pacific Islander (Not Hispanic or Latino)",
+     "text": "Native Hawaiian or Other Pacific Islander (Not Hispanic or Latino)"
+    },
+    {
+     "value": "Asian (Not Hispanic or Latino)",
+     "text": "Asian (Not Hispanic or Latino)"
+    },
+    {
+     "value": "American Indian or Alaska Native (Not Hispanic or Latino)",
+     "text": "American Indian or Alaska Native (Not Hispanic or Latino)"
+    },
+    {
+     "value": "Two or More Races (Not Hispanic or Latino)",
+     "text": "Two or More Races (Not Hispanic or Latino)"
+    },
+    {
+     "value": "Decline to self-identify",
+     "text": "Decline to self-identify"
+    }
+   ]
+  },
+  {
+   "selector": "select[name=\"eeo[veteran]\"]",
+   "tag": "select",
+   "type": "select",
+   "name": "eeo[veteran]",
+   "id": "",
+   "label": "Veteran status",
+   "required": false,
+   "placeholder": "",
+   "maxlength": null,
+   "options": [
+    {
+     "value": "",
+     "text": "Select ..."
+    },
+    {
+     "value": "I am a veteran",
+     "text": "I am a veteran"
+    },
+    {
+     "value": "I am not a veteran",
+     "text": "I am not a veteran"
+    },
+    {
+     "value": "Decline to self-identify",
+     "text": "Decline to self-identify"
+    }
+   ]
+  },
+  {
+   "selector": "input[name=\"surveysResponses[a4f04bf3-3034-49a4-92e4-918d96e4d456][responses][field0]\"]",
+   "tag": "input",
+   "type": "radio",
+   "name": "surveysResponses[a4f04bf3-3034-49a4-92e4-918d96e4d456][responses][field0]",
+   "id": "",
+   "label": "What is your age range?",
+   "required": false,
+   "placeholder": "",
+   "maxlength": null,
+   "options": [
+    {
+     "value": "17 or younger",
+     "text": "17 or younger"
+    },
+    {
+     "value": "18-20",
+     "text": "18-20"
+    },
+    {
+     "value": "21-29",
+     "text": "21-29"
+    },
+    {
+     "value": "30-39",
+     "text": "30-39"
+    },
+    {
+     "value": "40-49",
+     "text": "40-49"
+    },
+    {
+     "value": "50-59",
+     "text": "50-59"
+    },
+    {
+     "value": "60 or older",
+     "text": "60 or older"
+    },
+    {
+     "value": "Decline to specify",
+     "text": "Decline to specify"
+    }
+   ]
+  },
+  {
+   "selector": "input[name=\"surveysResponses[a4f04bf3-3034-49a4-92e4-918d96e4d456][responses][field1]\"]",
+   "tag": "input",
+   "type": "radio",
+   "name": "surveysResponses[a4f04bf3-3034-49a4-92e4-918d96e4d456][responses][field1]",
+   "id": "",
+   "label": "I identify my ethnicity as:",
+   "required": false,
+   "placeholder": "",
+   "maxlength": null,
+   "options": [
+    {
+     "value": "White",
+     "text": "White"
+    },
+    {
+     "value": "Black",
+     "text": "Black"
+    },
+    {
+     "value": "Hispanic",
+     "text": "Hispanic"
+    },
+    {
+     "value": "Asian",
+     "text": "Asian"
+    },
+    {
+     "value": "American Indian",
+     "text": "American Indian"
+    },
+    {
+     "value": "Two or more races",
+     "text": "Two or more races"
+    },
+    {
+     "value": "Hawaiian or Pacific Islander",
+     "text": "Hawaiian or Pacific Islander"
+    },
+    {
+     "value": "Decline to specify",
+     "text": "Decline to specify"
+    }
+   ]
+  },
+  {
+   "selector": "input[name=\"surveysResponses[a4f04bf3-3034-49a4-92e4-918d96e4d456][responses][field2]\"]",
+   "tag": "input",
+   "type": "radio",
+   "name": "surveysResponses[a4f04bf3-3034-49a4-92e4-918d96e4d456][responses][field2]",
+   "id": "",
+   "label": "Sex assigned at birth:",
+   "required": false,
+   "placeholder": "",
+   "maxlength": null,
+   "options": [
+    {
+     "value": "Female",
+     "text": "Female"
+    },
+    {
+     "value": "Male",
+     "text": "Male"
+    },
+    {
+     "value": "Decline to specify",
+     "text": "Decline to specify"
+    }
+   ]
+  },
+  {
+   "selector": "input[name=\"surveysResponses[a4f04bf3-3034-49a4-92e4-918d96e4d456][responses][field3]\"]",
+   "tag": "input",
+   "type": "radio",
+   "name": "surveysResponses[a4f04bf3-3034-49a4-92e4-918d96e4d456][responses][field3]",
+   "id": "",
+   "label": "I identify my gender as:",
+   "required": false,
+   "placeholder": "",
+   "maxlength": null,
+   "options": [
+    {
+     "value": "Female",
+     "text": "Female"
+    },
+    {
+     "value": "Male",
+     "text": "Male"
+    },
+    {
+     "value": "Genderfluid",
+     "text": "Genderfluid"
+    },
+    {
+     "value": "Gender-neutral",
+     "text": "Gender-neutral"
+    },
+    {
+     "value": "Genderqueer",
+     "text": "Genderqueer"
+    },
+    {
+     "value": "Non-binary",
+     "text": "Non-binary"
+    },
+    {
+     "value": "Pangender",
+     "text": "Pangender"
+    },
+    {
+     "value": "Transgender",
+     "text": "Transgender"
+    },
+    {
+     "value": "Two spirit",
+     "text": "Two spirit"
+    },
+    {
+     "value": "Agender",
+     "text": "Agender"
+    },
+    {
+     "value": "Not listed",
+     "text": "Not listed"
+    },
+    {
+     "value": "Decline to specify",
+     "text": "Decline to specify"
+    }
+   ]
+  },
+  {
+   "selector": "input[name=\"surveysResponses[a4f04bf3-3034-49a4-92e4-918d96e4d456][responses][field4]\"]",
+   "tag": "input",
+   "type": "radio",
+   "name": "surveysResponses[a4f04bf3-3034-49a4-92e4-918d96e4d456][responses][field4]",
+   "id": "",
+   "label": "Veteran Status:",
+   "required": false,
+   "placeholder": "",
+   "maxlength": null,
+   "options": [
+    {
+     "value": "Disabled Veteran",
+     "text": "Disabled Veteran"
+    },
+    {
+     "value": "Armed forces service medal Veteran",
+     "text": "Armed forces service medal Veteran"
+    },
+    {
+     "value": "Recently separated Veteran",
+     "text": "Recently separated Veteran"
+    },
+    {
+     "value": "Veteran, but not in one of the four protected classes above",
+     "text": "Veteran, but not in one of the four protected classes above"
+    },
+    {
+     "value": "Not a Veteran",
+     "text": "Not a Veteran"
+    },
+    {
+     "value": "Decline to specify",
+     "text": "Decline to specify"
+    }
+   ]
+  },
+  {
+   "selector": "input[name=\"surveysResponses[a4f04bf3-3034-49a4-92e4-918d96e4d456][responses][field5]\"]",
+   "tag": "input",
+   "type": "radio",
+   "name": "surveysResponses[a4f04bf3-3034-49a4-92e4-918d96e4d456][responses][field5]",
+   "id": "",
+   "label": "Do you have a Disability?",
+   "required": false,
+   "placeholder": "",
+   "maxlength": null,
+   "options": [
+    {
+     "value": "Yes, I have a Disability or have a history/record of having a Disability",
+     "text": "Yes, I have a Disability or have a history/record of having a Disability"
+    },
+    {
+     "value": "No, I do not have a Disability or a history/record of having a Disability",
+     "text": "No, I do not have a Disability or a history/record of having a Disability"
+    },
+    {
+     "value": "Decline to specify",
+     "text": "Decline to specify"
+    }
+   ]
+  }
+ ],
+ "captcha": [
+  {
+   "src": "https://newassets.hcaptcha.com/captcha/v1/.../static/hcaptcha-enclave.html",
+   "invisible": true
+  }
+ ],
+ "invisibleCaptcha": true,
+ "submit": [
+  {
+   "selector": "#btn-submit",
+   "text": "SUBMIT APPLICATION"
+  }
+ ]
+}

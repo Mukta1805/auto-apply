@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from ..location import classify
+from ..location import classify, normalize_country
 from ..models import Job
 from ..text import html_to_text, to_iso_date
 from .base import Fetcher
@@ -26,21 +26,29 @@ class AshbyFetcher(Fetcher):
         for j in data.get("jobs", []):
             if j.get("isListed") is False:
                 continue
-            locs = [j.get("location") or ""] + [s.get("location", "") for s in j.get("secondaryLocations") or []]
+            secondary = j.get("secondaryLocations") or []
+            locs = [j.get("location") or ""] + [s.get("location", "") for s in secondary]
             location = "; ".join(x for x in locs if x)
-            postal = ((j.get("address") or {}).get("postalAddress") or {})
+            countries = [((a.get("address") or {}).get("postalAddress") or {}).get("addressCountry")
+                         for a in [j, *secondary]]
+            countries = [c for c in countries if c]
+            # Prefer a US address when any of the posting's locations is in the US.
+            hint = next((c for c in countries if normalize_country(c) == "US"), countries[0] if countries else None)
+            # Ashby sets isRemote=true for hybrid roles too; workplaceType is the reliable field.
             workplace = (j.get("workplaceType") or "").lower()
-            country, remote = classify(location, postal.get("addressCountry"),
-                                       bool(j.get("isRemote")) or workplace == "remote")
-            comp = (j.get("compensation") or {})
+            remote = workplace == "remote" if workplace else bool(j.get("isRemote"))
+            country, is_remote = classify(location, hint, remote)
+            comp = j.get("compensation") or {}
             salary = comp.get("compensationTierSummary") or comp.get("scrapeableCompensationSalarySummary") or ""
             jobs.append(Job(
                 ats=self.ats, company=company, company_slug=slug, external_id=str(j["id"]),
-                title=(j.get("title") or "").strip(), url=j.get("jobUrl", ""), apply_url=j.get("applyUrl", ""),
-                location=location, country=country, is_remote=remote,
+                title=(j.get("title") or "").strip(), url=j.get("jobUrl", ""),
+                apply_url=j.get("applyUrl") or (j.get("jobUrl", "") + "/application" if j.get("jobUrl") else ""),
+                location=location, country=country, is_remote=is_remote,
                 department=" / ".join(x for x in (j.get("department"), j.get("team")) if x),
                 employment_type=j.get("employmentType", "") or "", salary=salary or "",
                 description=j.get("descriptionPlain") or html_to_text(j.get("descriptionHtml")),
                 posted_at=to_iso_date(j.get("publishedAt")),
+                extra={"workplace": workplace} if workplace else {},
             ))
         return jobs

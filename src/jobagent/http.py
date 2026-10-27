@@ -34,7 +34,8 @@ class FetchResult:
 
 class HttpClient:
     def __init__(self, max_concurrency: int = 24, per_host: int = 6, timeout: float = 20.0,
-                 max_retries: int = 4, user_agent: str = "riya-job-agent/0.1"):
+                 max_retries: int = 4, user_agent: str = "riya-job-agent/0.1",
+                 host_limits: dict[str, dict] | None = None):
         self._client = httpx.AsyncClient(
             http2=True,
             timeout=httpx.Timeout(timeout, connect=10.0),
@@ -45,6 +46,11 @@ class HttpClient:
         self._global = asyncio.Semaphore(max_concurrency)
         self._per_host_limit = per_host
         self._hosts: dict[str, asyncio.Semaphore] = {}
+        # Per-host overrides, e.g. {"apply.workable.com": {"concurrency": 1, "min_interval": 1.5}}:
+        # Workable's widget API answered 429 to ~90% of requests at 6 concurrent in a live test.
+        self._host_limits = host_limits or {}
+        self._host_last: dict[str, float] = {}
+        self._host_gate: dict[str, asyncio.Lock] = {}
         self.max_retries = max_retries
         self.stats = {"requests": 0, "retries": 0, "errors": 0, "not_modified": 0, "bytes": 0}
 
@@ -57,8 +63,23 @@ class HttpClient:
     def _host_sem(self, url: str) -> asyncio.Semaphore:
         host = urlparse(url).netloc
         if host not in self._hosts:
-            self._hosts[host] = asyncio.Semaphore(self._per_host_limit)
+            limit = int(self._host_limits.get(host, {}).get("concurrency", self._per_host_limit))
+            self._hosts[host] = asyncio.Semaphore(limit)
         return self._hosts[host]
+
+    async def _pace(self, url: str) -> None:
+        """Enforce a minimum gap between requests to hosts configured with min_interval."""
+        host = urlparse(url).netloc
+        gap = float(self._host_limits.get(host, {}).get("min_interval", 0) or 0)
+        if gap <= 0:
+            return
+        lock = self._host_gate.setdefault(host, asyncio.Lock())
+        async with lock:
+            loop = asyncio.get_running_loop()
+            wait = self._host_last.get(host, 0.0) + gap - loop.time()
+            if wait > 0:
+                await asyncio.sleep(wait)
+            self._host_last[host] = loop.time()
 
     async def get_json(self, url: str, *, params: dict | None = None, etag: str | None = None,
                        last_modified: str | None = None, expect_404: bool = False) -> FetchResult:
@@ -75,6 +96,7 @@ class HttpClient:
             try:
                 # Host slot first, so a busy host never holds global slots while it waits.
                 async with self._host_sem(url), self._global:
+                    await self._pace(url)
                     self.stats["requests"] += 1
                     resp = await self._client.get(url, params=params, headers=headers)
                 elapsed = int((loop.time() - start) * 1000)
@@ -112,10 +134,12 @@ class HttpClient:
 
     @staticmethod
     def _retry_delay(resp: httpx.Response, attempt: int) -> float:
+        backoff = min(30.0, 2 ** attempt + random.random())
         ra = resp.headers.get("Retry-After")
         if ra:
             try:
-                return min(60.0, float(ra))
+                # Workable sends "Retry-After: 0" while still rate-limiting; never retry faster than backoff.
+                return min(60.0, max(float(ra), backoff))
             except ValueError:
                 pass
-        return min(30.0, 2 ** attempt + random.random())
+        return backoff

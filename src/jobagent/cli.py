@@ -35,7 +35,8 @@ def _http(cfg: Config) -> HttpClient:
     contact = cfg.secret("CONTACT_EMAIL")
     ua = f"riya-job-agent/{__version__} (personal job search{'; ' + contact if contact else ''})"
     return HttpClient(max_concurrency=int(f["max_concurrency"]), per_host=int(f["per_host_concurrency"]),
-                      timeout=float(f["timeout_seconds"]), max_retries=int(f["max_retries"]), user_agent=ua)
+                      timeout=float(f["timeout_seconds"]), max_retries=int(f["max_retries"]), user_agent=ua,
+                      host_limits=dict(f.get("host_limits") or {}))
 
 
 def _llm_factory(cfg: Config):

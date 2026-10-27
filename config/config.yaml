@@ -30,6 +30,9 @@ fetch:
   timeout_seconds: 20
   max_retries: 4               # on 429 / 5xx / network errors, exponential backoff
   hydrate_concurrency: 8       # detail-page fetches (SmartRecruiters)
+  host_limits:                 # slower hosts (measured live: Workable rate-limits hard)
+    apply.workable.com: {concurrency: 1, min_interval: 1.5}
+    api.smartrecruiters.com: {concurrency: 4}
 
 filters:
   max_posting_age_days: 45
@@ -136,6 +139,10 @@ filters:
     - chief of staff
     - founder's associate
     - founders associate
+  # Regex exceptions. Seen live: "Scientific Associate Product Marketing Manager" ($80-105K, entry level).
+  exclude_exception_patterns:
+    - "associate( [a-z&/,-]+){0,3} manager"
+    - "manager,? (in )?training"
   # Exclude "manager" titles unless an exception above matches.
   exclude_manager_titles: true
 

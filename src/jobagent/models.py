@@ -14,6 +14,7 @@ class Company:
     ats: str = "unknown"          # greenhouse | lever | ashby | workable | smartrecruiters | unknown | unsupported
     slug: str = ""
     careers_url: str = ""
+    domain: str = ""              # company website domain, used to find contacts (phase 2)
     priority: int = 2             # 1 = dream company
     active: bool = True
     notes: str = ""

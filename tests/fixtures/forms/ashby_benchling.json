@@ -1,0 +1,280 @@
+{
+ "url": "https://jobs.ashbyhq.com/benchling/ce76248e-0453-49a5-8f92-27ffec0392b8/application",
+ "title": "Customer Success Manager @ Benchling",
+ "_source": "Captured live 2026-10-27 with src/jobagent/apply/extract_fields.js in a real browser (read-only).",
+ "fields": [
+  {
+   "selector": "div.autofill > input",
+   "tag": "input",
+   "type": "file",
+   "name": "",
+   "id": "",
+   "label": "Autofill from resume",
+   "required": false,
+   "placeholder": "",
+   "maxlength": null,
+   "accept": "application/pdf,.pdf,.doc,.docx"
+  },
+  {
+   "selector": "#_systemfield_name",
+   "tag": "input",
+   "type": "text",
+   "name": "_systemfield_name",
+   "id": "",
+   "label": "Name",
+   "required": true,
+   "placeholder": "",
+   "maxlength": null
+  },
+  {
+   "selector": "#_systemfield_email",
+   "tag": "input",
+   "type": "email",
+   "name": "_systemfield_email",
+   "id": "",
+   "label": "Email",
+   "required": true,
+   "placeholder": "",
+   "maxlength": null
+  },
+  {
+   "selector": "#_systemfield_resume",
+   "tag": "input",
+   "type": "file",
+   "name": "",
+   "id": "",
+   "label": "Resume",
+   "required": true,
+   "placeholder": "",
+   "maxlength": null,
+   "accept": "application/pdf,.pdf,.doc,.docx"
+  },
+  {
+   "selector": "#\\37 541a80b-bc9b-4cac-aec1-49ab9d5a2ca7",
+   "tag": "input",
+   "type": "tel",
+   "name": "7541a80b-bc9b-4cac-aec1-49ab9d5a2ca7",
+   "id": "",
+   "label": "Phone Number",
+   "required": true,
+   "placeholder": "",
+   "maxlength": null
+  },
+  {
+   "selector": "div.location > input",
+   "tag": "input",
+   "type": "combobox",
+   "name": "",
+   "id": "",
+   "label": "Location",
+   "required": false,
+   "placeholder": "",
+   "maxlength": null
+  },
+  {
+   "selector": "input[name=\"She/Her/Hers\"]",
+   "tag": "input",
+   "type": "checkbox",
+   "name": "She/Her/Hers",
+   "id": "",
+   "label": "",
+   "required": false,
+   "placeholder": "",
+   "maxlength": null,
+   "options": [
+    {
+     "value": "She/Her/Hers",
+     "text": "She/Her/Hers"
+    }
+   ]
+  },
+  {
+   "selector": "#\\39 d81e560-d8ab-44b5-b628-a6a2acdcfe39",
+   "tag": "input",
+   "type": "text",
+   "name": "9d81e560-d8ab-44b5-b628-a6a2acdcfe39",
+   "id": "",
+   "label": "Linkedin Profile",
+   "required": false,
+   "placeholder": "",
+   "maxlength": null
+  },
+  {
+   "selector": "input[name=\"c664adf2-737b-4bb2-8ee3-909d5c2761c5_0c787ce7-523d-4fd6-b17a-7e3f6b5d91d5\"]",
+   "tag": "input",
+   "type": "radio",
+   "name": "c664adf2-737b-4bb2-8ee3-909d5c2761c5_0c787ce7",
+   "id": "",
+   "label": "I acknowledge by submitting an application for this role that I accept and agree to Benchling's global applicant privacy policy, which may be accessed on the link below:",
+   "required": false,
+   "placeholder": "",
+   "maxlength": null,
+   "options": [
+    {
+     "value": "I acknowledge",
+     "text": "I acknowledge"
+    }
+   ]
+  },
+  {
+   "selector": "input[name=\"c664adf2-737b-4bb2-8ee3-909d5c2761c5_73834d29-f2c2-4fee-a651-b987ca034810\"]",
+   "tag": "input",
+   "type": "radio",
+   "name": "c664adf2-737b-4bb2-8ee3-909d5c2761c5_73834d29",
+   "id": "",
+   "label": "U.S. Work Authorization Status",
+   "required": false,
+   "placeholder": "",
+   "maxlength": null,
+   "options": [
+    {
+     "value": "Can work for any employer",
+     "text": "Can work for any employer"
+    },
+    {
+     "value": "Can work for current employer",
+     "text": "Can work for current employer"
+    },
+    {
+     "value": "Seeking work authorization",
+     "text": "Seeking work authorization"
+    }
+   ]
+  },
+  {
+   "selector": "input[name=\"c664adf2-737b-4bb2-8ee3-909d5c2761c5_7817551b-c1d9-4144-a6f8-279772d3ad59\"]",
+   "tag": "input",
+   "type": "radio",
+   "name": "c664adf2-737b-4bb2-8ee3-909d5c2761c5_7817551b",
+   "id": "",
+   "label": "Will you now, or sometime in the future, require visa sponsorship?",
+   "required": false,
+   "placeholder": "",
+   "maxlength": null,
+   "options": [
+    {
+     "value": "Yes",
+     "text": "Yes"
+    },
+    {
+     "value": "No",
+     "text": "No"
+    }
+   ]
+  },
+  {
+   "selector": "#\\37 d0151ef-3c94-47d9-9772-45662927c748",
+   "tag": "textarea",
+   "type": "textarea",
+   "name": "7d0151ef-3c94-47d9-9772-45662927c748",
+   "id": "",
+   "label": "What AI tools are you currently using today and how are you using them?",
+   "required": true,
+   "placeholder": "",
+   "maxlength": null
+  },
+  {
+   "selector": "input[name=\"c6118e97-4541-4434-ae67-d67fa295d87a_gh_quest_1185\"]",
+   "tag": "input",
+   "type": "radio",
+   "name": "c6118e97-4541-4434-ae67-d67fa295d87a_gh_quest_1185",
+   "id": "",
+   "label": "Gender Identity",
+   "required": false,
+   "placeholder": "",
+   "maxlength": null,
+   "options": [
+    {
+     "value": "Man",
+     "text": "Man"
+    },
+    {
+     "value": "Woman",
+     "text": "Woman"
+    },
+    {
+     "value": "Non-Binary, Non-Conforming",
+     "text": "Non-Binary, Non-Conforming"
+    },
+    {
+     "value": "Decline to Self Identify",
+     "text": "Decline to Self Identify"
+    }
+   ]
+  },
+  {
+   "selector": "fieldset.ethnicity > div > input",
+   "tag": "input",
+   "type": "combobox",
+   "name": "",
+   "id": "",
+   "label": "Ethnicity",
+   "required": false,
+   "placeholder": "",
+   "maxlength": null
+  },
+  {
+   "selector": "input[name=\"c6118e97-4541-4434-ae67-d67fa295d87a_gh_quest_1237\"]",
+   "tag": "input",
+   "type": "radio",
+   "name": "c6118e97-4541-4434-ae67-d67fa295d87a_gh_quest_1237",
+   "id": "",
+   "label": "Veteran Status",
+   "required": false,
+   "placeholder": "",
+   "maxlength": null,
+   "options": [
+    {
+     "value": "I am not a protected Veteran",
+     "text": "I am not a protected Veteran"
+    },
+    {
+     "value": "I identify as one or more of the classifications of a protected veteran",
+     "text": "I identify as one or more of the classifications of a protected veteran"
+    },
+    {
+     "value": "I don't wish to answer",
+     "text": "I don't wish to answer"
+    }
+   ]
+  },
+  {
+   "selector": "input[name=\"c6118e97-4541-4434-ae67-d67fa295d87a_gh_quest_1236\"]",
+   "tag": "input",
+   "type": "radio",
+   "name": "c6118e97-4541-4434-ae67-d67fa295d87a_gh_quest_1236",
+   "id": "",
+   "label": "Disability",
+   "required": false,
+   "placeholder": "",
+   "maxlength": null,
+   "options": [
+    {
+     "value": "Yes, I have a disability, or have had one in the past",
+     "text": "Yes, I have a disability, or have had one in the past"
+    },
+    {
+     "value": "No, I do not have a disability and have not had one in the past",
+     "text": "No, I do not have a disability and have not had one in the past"
+    },
+    {
+     "value": "I don't want to answer",
+     "text": "I don't want to answer"
+    }
+   ]
+  }
+ ],
+ "captcha": [
+  {
+   "src": "https://www.recaptcha.net/recaptcha/enterprise/anchor",
+   "invisible": true
+  }
+ ],
+ "invisibleCaptcha": true,
+ "submit": [
+  {
+   "selector": "button.ashby-application-form-submit-button",
+   "text": "Submit Application"
+  }
+ ]
+}

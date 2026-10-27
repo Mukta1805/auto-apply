@@ -32,7 +32,8 @@ class JobFilter:
                  applied_keys: Iterable[str] = (), detail_ats: Iterable[str] = (), today: date | None = None):
         self.track_kw = {t: [_kw(k) for k in kws] for t, kws in cfg["role_keywords"].items()}
         self.exclude = [(k.strip(), _kw(k)) for k in cfg["exclude_title_keywords"]]
-        self.exceptions = [_kw(k) for k in cfg.get("exclude_exceptions", [])]
+        self.exceptions = [_kw(k) for k in cfg.get("exclude_exceptions", [])] + \
+            [re.compile(p, re.I) for p in cfg.get("exclude_exception_patterns", [])]
         self.exclude_manager = bool(cfg.get("exclude_manager_titles", True))
         self.manager = _kw("manager")
         self.blockers = [re.compile(p, re.I) for p in cfg["sponsorship_blockers"]]
@@ -45,15 +46,22 @@ class JobFilter:
         self.today = today or date.today()
 
     def title_check(self, title: str) -> tuple[bool, str, str]:
-        """Returns (ok, reason_if_not, track_hint)."""
+        """Returns (ok, reason_if_not, track_hint).
+
+        An exception phrase only cancels the exclusion words it actually covers: "Associate Product Marketing
+        Manager" is allowed (the exception covers "manager"), but "Senior Research Associate" is still excluded
+        because nothing covers "senior"."""
         t = title.lower()
-        has_exception = any(p.search(t) for p in self.exceptions)
-        if not has_exception:
-            for word, pat in self.exclude:
-                if pat.search(t):
-                    return False, f"title excluded ({word})", ""
-            if self.exclude_manager and self.manager.search(t):
-                return False, "title excluded (manager)", ""
+        covered = [m.span() for p in self.exceptions for m in p.finditer(t)]
+
+        def uncovered(m: re.Match) -> bool:
+            return not any(a <= m.start() and m.end() <= b for a, b in covered)
+
+        for word, pat in self.exclude:
+            if any(uncovered(m) for m in pat.finditer(t)):
+                return False, f"title excluded ({word})", ""
+        if self.exclude_manager and any(uncovered(m) for m in self.manager.finditer(t)):
+            return False, "title excluded (manager)", ""
         tracks = [name for name, pats in self.track_kw.items() if any(p.search(t) for p in pats)]
         if not tracks:
             return False, "title not relevant to either track", ""

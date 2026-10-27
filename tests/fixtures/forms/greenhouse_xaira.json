@@ -1,0 +1,264 @@
+{
+ "url": "https://job-boards.greenhouse.io/xairatherapeutics/jobs/5089321007",
+ "title": "Job Application for AI in Residence at Xaira Therapeutics",
+ "_source": "Captured live 2026-10-27 with src/jobagent/apply/extract_fields.js in a real browser (read-only).",
+ "fields": [
+  {
+   "selector": "#first_name",
+   "tag": "input",
+   "type": "text",
+   "name": "",
+   "id": "first_name",
+   "label": "First Name",
+   "required": true,
+   "placeholder": "",
+   "maxlength": null
+  },
+  {
+   "selector": "#last_name",
+   "tag": "input",
+   "type": "text",
+   "name": "",
+   "id": "last_name",
+   "label": "Last Name",
+   "required": true,
+   "placeholder": "",
+   "maxlength": null
+  },
+  {
+   "selector": "#preferred_name",
+   "tag": "input",
+   "type": "text",
+   "name": "",
+   "id": "preferred_name",
+   "label": "Preferred First Name",
+   "required": false,
+   "placeholder": "",
+   "maxlength": null
+  },
+  {
+   "selector": "#email",
+   "tag": "input",
+   "type": "text",
+   "name": "",
+   "id": "email",
+   "label": "Email",
+   "required": true,
+   "placeholder": "",
+   "maxlength": null
+  },
+  {
+   "selector": "#country",
+   "tag": "input",
+   "type": "combobox",
+   "name": "",
+   "id": "country",
+   "label": "Country",
+   "required": true,
+   "placeholder": "",
+   "maxlength": null
+  },
+  {
+   "selector": "#phone",
+   "tag": "input",
+   "type": "tel",
+   "name": "",
+   "id": "phone",
+   "label": "Phone",
+   "required": true,
+   "placeholder": "",
+   "maxlength": null
+  },
+  {
+   "selector": "#candidate-location",
+   "tag": "input",
+   "type": "combobox",
+   "name": "",
+   "id": "candidate-location",
+   "label": "Location (City)",
+   "required": true,
+   "placeholder": "",
+   "maxlength": null
+  },
+  {
+   "selector": "#resume",
+   "tag": "input",
+   "type": "file",
+   "name": "",
+   "id": "resume",
+   "label": "Resume/CV",
+   "required": true,
+   "placeholder": "",
+   "maxlength": null,
+   "accept": ".pdf,.doc,.docx,.txt,.rtf"
+  },
+  {
+   "selector": "#cover_letter",
+   "tag": "input",
+   "type": "file",
+   "name": "",
+   "id": "cover_letter",
+   "label": "Cover Letter",
+   "required": true,
+   "placeholder": "",
+   "maxlength": null,
+   "accept": ".pdf,.doc,.docx,.txt,.rtf"
+  },
+  {
+   "selector": "#school--0",
+   "tag": "input",
+   "type": "combobox",
+   "name": "",
+   "id": "school--0",
+   "label": "School",
+   "required": true,
+   "placeholder": "",
+   "maxlength": null
+  },
+  {
+   "selector": "#degree--0",
+   "tag": "input",
+   "type": "combobox",
+   "name": "",
+   "id": "degree--0",
+   "label": "Degree",
+   "required": true,
+   "placeholder": "",
+   "maxlength": null
+  },
+  {
+   "selector": "#discipline--0",
+   "tag": "input",
+   "type": "combobox",
+   "name": "",
+   "id": "discipline--0",
+   "label": "Discipline",
+   "required": true,
+   "placeholder": "",
+   "maxlength": null
+  },
+  {
+   "selector": "#question_11636616007",
+   "tag": "textarea",
+   "type": "textarea",
+   "name": "",
+   "id": "question_11636616007",
+   "label": "Please share 1\u20133 links to work that best represents you? (GitHub, papers, or projects).",
+   "required": true,
+   "placeholder": "",
+   "maxlength": null
+  },
+  {
+   "selector": "#question_11636615007",
+   "tag": "input",
+   "type": "text",
+   "name": "",
+   "id": "question_11636615007",
+   "label": "Website",
+   "required": false,
+   "placeholder": "",
+   "maxlength": null
+  },
+  {
+   "selector": "#question_11642066007",
+   "tag": "textarea",
+   "type": "textarea",
+   "name": "",
+   "id": "question_11642066007",
+   "label": "Of the links you shared, which one best represents your work, and why should we focus on it?",
+   "required": true,
+   "placeholder": "",
+   "maxlength": null
+  },
+  {
+   "selector": "#question_11642067007",
+   "tag": "textarea",
+   "type": "textarea",
+   "name": "",
+   "id": "question_11642067007",
+   "label": "This role is based in our South San Francisco or Seattle office and requires five days per week in-office. How does this align with your preferences",
+   "required": true,
+   "placeholder": "",
+   "maxlength": null
+  },
+  {
+   "selector": "#question_11642284007",
+   "tag": "input",
+   "type": "combobox",
+   "name": "",
+   "id": "question_11642284007",
+   "label": "Are you legally authorized to work in the country for this position without requiring employer-sponsored work authorization?",
+   "required": true,
+   "placeholder": "",
+   "maxlength": null
+  },
+  {
+   "selector": "#question_11642285007",
+   "tag": "input",
+   "type": "combobox",
+   "name": "",
+   "id": "question_11642285007",
+   "label": "If you answered 'No' to the previous question, will you require sponsorship for a work visa or other work authorization?",
+   "required": true,
+   "placeholder": "",
+   "maxlength": null
+  },
+  {
+   "selector": "#question_12906412007",
+   "tag": "input",
+   "type": "combobox",
+   "name": "",
+   "id": "question_12906412007",
+   "label": "Would you like to receive communications via SMS to the number provided above about your application process? Message & data rates may apply and message frequency may vary.",
+   "required": true,
+   "placeholder": "",
+   "maxlength": null
+  },
+  {
+   "selector": "#gender",
+   "tag": "input",
+   "type": "combobox",
+   "name": "",
+   "id": "gender",
+   "label": "Gender",
+   "required": false,
+   "placeholder": "",
+   "maxlength": null
+  },
+  {
+   "selector": "#hispanic_ethnicity",
+   "tag": "input",
+   "type": "combobox",
+   "name": "",
+   "id": "hispanic_ethnicity",
+   "label": "Are you Hispanic/Latino?",
+   "required": false,
+   "placeholder": "",
+   "maxlength": null
+  },
+  {
+   "selector": "#veteran_status",
+   "tag": "input",
+   "type": "combobox",
+   "name": "",
+   "id": "veteran_status",
+   "label": "Veteran Status",
+   "required": false,
+   "placeholder": "",
+   "maxlength": null
+  }
+ ],
+ "captcha": [
+  {
+   "src": "https://www.recaptcha.net/recaptcha/enterprise/anchor",
+   "invisible": true
+  }
+ ],
+ "invisibleCaptcha": true,
+ "submit": [
+  {
+   "selector": "main > div > div:nth-of-type(4) > form > div:nth-of-type(5) > button",
+   "text": "Submit application"
+  }
+ ]
+}

@@ -28,6 +28,7 @@ CREATE TABLE IF NOT EXISTS companies (
     ats TEXT DEFAULT 'unknown',
     slug TEXT DEFAULT '',
     careers_url TEXT DEFAULT '',
+    domain TEXT DEFAULT '',
     priority INTEGER DEFAULT 2,
     active INTEGER DEFAULT 1,
     notes TEXT DEFAULT '',
@@ -196,14 +197,16 @@ class Store:
 
     # ---- companies ----------------------------------------------------
     def sync_companies(self, companies: Iterable[Company]) -> int:
-        rows = [(c.name, c.industry, c.ats, c.slug, c.careers_url, c.priority, int(c.active), c.notes)
+        rows = [(c.name, c.industry, c.ats, c.slug, c.careers_url, c.domain, c.priority, int(c.active), c.notes)
                 for c in companies]
         with self.tx() as conn:
             conn.executemany(
-                """INSERT INTO companies(name, industry, ats, slug, careers_url, priority, active, notes)
-                   VALUES(?,?,?,?,?,?,?,?)
+                """INSERT INTO companies(name, industry, ats, slug, careers_url, domain, priority, active, notes)
+                   VALUES(?,?,?,?,?,?,?,?,?)
                    ON CONFLICT(name) DO UPDATE SET industry=excluded.industry, ats=excluded.ats,
-                     slug=excluded.slug, careers_url=excluded.careers_url, priority=excluded.priority,
+                     slug=excluded.slug, careers_url=excluded.careers_url,
+                     domain=CASE WHEN excluded.domain<>'' THEN excluded.domain ELSE companies.domain END,
+                     priority=excluded.priority,
                      active=excluded.active, notes=excluded.notes""", rows)
             names = [r[0] for r in rows]
             if names:

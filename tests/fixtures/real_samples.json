@@ -1,0 +1,262 @@
+{
+ "_source": "Trimmed from live API responses captured 2026-10-27 (structure and field values kept; long text cut).",
+ "greenhouse_alnylam": {
+  "jobs": [
+   {
+    "id": 4400012009,
+    "title": "Associate Director, Biostatistics",
+    "absolute_url": "https://job-boards.greenhouse.io/alnylampharmaceuticals/jobs/4400012009",
+    "location": {
+     "name": "Maidenhead"
+    },
+    "updated_at": "2026-10-27T15:37:06-04:00",
+    "first_published": "2026-09-09T16:50:00-04:00",
+    "metadata": [
+     {
+      "id": 6473244009,
+      "name": "Employment Type",
+      "value": "Permanent",
+      "value_type": "single_select"
+     },
+     {
+      "id": 7030068009,
+      "name": "Workplace Type <>",
+      "value": "Hybrid",
+      "value_type": "single_select"
+     }
+    ],
+    "content": "&lt;p&gt;&lt;strong&gt;Overview&lt;/strong&gt;&lt;/p&gt;&lt;div&gt;This is a hybrid position, based two days a week onsite at our offices in Maidenhead.&lt;/div&gt;",
+    "departments": [
+     {
+      "id": 4042385009,
+      "name": "Quantitative Sciences"
+     }
+    ],
+    "offices": [
+     {
+      "id": 4044448009,
+      "name": "United Kingdom",
+      "location": "Masthead, UK"
+     }
+    ]
+   },
+   {
+    "id": 4400156009,
+    "title": "Associate Director, Biostatistics",
+    "absolute_url": "https://job-boards.greenhouse.io/alnylampharmaceuticals/jobs/4400156009",
+    "location": {
+     "name": "United States"
+    },
+    "updated_at": "2026-10-27T15:37:06-04:00",
+    "first_published": "2026-09-15T12:04:51-04:00",
+    "metadata": [
+     {
+      "id": 7030068009,
+      "name": "Workplace Type <>",
+      "value": "Virtual",
+      "value_type": "single_select"
+     }
+    ],
+    "content": "&lt;p&gt;The Associate Director, Biostatistics is responsible for statistical activities.&lt;/p&gt;",
+    "departments": [
+     {
+      "id": 4042385009,
+      "name": "Quantitative Sciences"
+     }
+    ],
+    "offices": [
+     {
+      "id": 4056364009,
+      "name": "United States",
+      "location": "United States"
+     }
+    ]
+   }
+  ]
+ },
+ "greenhouse_clearview": {
+  "jobs": [
+   {
+    "id": 5213990008,
+    "title": "Consultant - Insights COE",
+    "absolute_url": "https://job-boards.greenhouse.io/clearviewhealthcarepartners/jobs/5213990008",
+    "location": {
+     "name": "Gurugram, Haryana, India"
+    },
+    "updated_at": "2026-08-27T09:51:37-04:00",
+    "first_published": "2026-05-08T02:46:57-04:00",
+    "metadata": null,
+    "content": "&lt;p&gt;Secondary research for life sciences clients.&lt;/p&gt;",
+    "departments": [
+     {
+      "name": "Billable Team"
+     }
+    ],
+    "offices": [
+     {
+      "name": "Gurugram",
+      "location": "Gurugram, Haryana, India"
+     }
+    ]
+   },
+   {
+    "id": 5070509008,
+    "title": "Consulting Project Team Lead - Corporate Strategy (Multiple offices)",
+    "absolute_url": "https://job-boards.greenhouse.io/clearviewhealthcarepartners/jobs/5070509008",
+    "location": {
+     "name": "New York, New York, United States; Boston, Massachusetts, United States; "
+    },
+    "updated_at": "2026-08-13T10:21:26-04:00",
+    "first_published": "2026-01-16T09:10:14-05:00",
+    "metadata": null,
+    "content": "&lt;p&gt;Corporate Strategy practice.&lt;/p&gt;",
+    "departments": [
+     {
+      "name": "Billable Team"
+     }
+    ],
+    "offices": [
+     {
+      "name": "Boston",
+      "location": "Boston, Massachusetts, United States"
+     },
+     {
+      "name": "San Francisco",
+      "location": "San Francisco, California, United States"
+     }
+    ]
+   }
+  ]
+ },
+ "ashby_mixed": {
+  "apiVersion": "1",
+  "jobs": [
+   {
+    "id": "g1",
+    "title": "Principal, Acquisitions",
+    "location": "New York, NY - Hybrid",
+    "workplaceType": "Hybrid",
+    "isRemote": true,
+    "isListed": true,
+    "secondaryLocations": [],
+    "address": {
+     "postalAddress": {
+      "addressRegion": "New York",
+      "addressCountry": "United States",
+      "addressLocality": "New York"
+     }
+    },
+    "publishedAt": "2026-10-01T00:00:00.000Z",
+    "jobUrl": "https://jobs.ashbyhq.com/x/g1",
+    "applyUrl": "https://jobs.ashbyhq.com/x/g1/application",
+    "descriptionPlain": "Hybrid role.",
+    "compensation": {
+     "compensationTierSummary": null
+    }
+   },
+   {
+    "id": "i1",
+    "title": "Data Analyst",
+    "location": "San Francisco Office",
+    "workplaceType": "Hybrid",
+    "isRemote": true,
+    "isListed": true,
+    "secondaryLocations": [],
+    "address": {
+     "postalAddress": {
+      "addressRegion": "California ",
+      "addressCountry": "U.S.A",
+      "addressLocality": "San Francisco"
+     }
+    },
+    "publishedAt": "2026-10-02T00:00:00.000Z",
+    "jobUrl": "https://jobs.ashbyhq.com/x/i1",
+    "applyUrl": "",
+    "descriptionPlain": "",
+    "descriptionHtml": "<p>Analyze payer data.</p>",
+    "compensation": {}
+   },
+   {
+    "id": "o1",
+    "title": "Software Engineer ",
+    "location": "Paris ",
+    "workplaceType": "Remote",
+    "isRemote": true,
+    "isListed": true,
+    "secondaryLocations": [],
+    "address": {
+     "postalAddress": {
+      "addressCountry": "France",
+      "addressLocality": "Paris"
+     }
+    },
+    "publishedAt": "2026-10-03T00:00:00.000Z",
+    "jobUrl": "https://jobs.ashbyhq.com/x/o1",
+    "applyUrl": "https://jobs.ashbyhq.com/x/o1/application",
+    "descriptionPlain": "Remote in France.",
+    "compensation": {}
+   },
+   {
+    "id": "r1",
+    "title": "Implementation Manager",
+    "location": "Fully Remote",
+    "workplaceType": "Remote",
+    "isRemote": true,
+    "isListed": true,
+    "secondaryLocations": [],
+    "address": {
+     "postalAddress": {
+      "addressRegion": "California",
+      "addressCountry": "United States",
+      "addressLocality": "San Francisco"
+     }
+    },
+    "publishedAt": "2026-10-04T00:00:00.000Z",
+    "jobUrl": "https://jobs.ashbyhq.com/x/r1",
+    "applyUrl": "https://jobs.ashbyhq.com/x/r1/application",
+    "descriptionPlain": "Remote US.",
+    "compensation": {
+     "compensationTierSummary": "$95K \u2013 $110K"
+    }
+   }
+  ]
+ },
+ "lever_synthego": [
+  {
+   "id": "19694157-b0bf-4dcd-add3-7b2efe9f24f7",
+   "text": "Scientific Associate Product Marketing Manager",
+   "country": "US",
+   "workplaceType": "remote",
+   "categories": {
+    "commitment": "Full-time",
+    "department": "Commercial",
+    "location": "Redwood City, CA",
+    "team": "Marketing",
+    "allLocations": [
+     "Redwood City, CA"
+    ]
+   },
+   "createdAt": 1792184062186,
+   "descriptionPlain": "",
+   "description": "<p>Our marketing team is looking for an associate product marketer. In this entry role, you will work closely with product managers.</p>",
+   "opening": "",
+   "openingPlain": "",
+   "lists": [
+    {
+     "text": "About You: ",
+     "content": "<li>MA/MS/PhD or 5+ years of technical experience in life sciences</li>"
+    }
+   ],
+   "additional": "<div>Synthego is a pioneering force in the biotechnology industry.</div>",
+   "additionalPlain": "Our Mission \nSynthego is a pioneering force in the biotechnology industry.",
+   "salaryRange": {
+    "min": 80000,
+    "max": 105000,
+    "currency": "USD",
+    "interval": "per-year-salary"
+   },
+   "hostedUrl": "https://jobs.lever.co/synthego/19694157-b0bf-4dcd-add3-7b2efe9f24f7",
+   "applyUrl": "https://jobs.lever.co/synthego/19694157-b0bf-4dcd-add3-7b2efe9f24f7/apply"
+  }
+ ]
+}

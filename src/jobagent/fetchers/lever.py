@@ -29,7 +29,8 @@ class LeverFetcher(Fetcher):
             location = "; ".join(locations)
             workplace = (p.get("workplaceType") or "").lower()
             country, remote = classify(location, p.get("country"), workplace == "remote")
-            parts = [p.get("descriptionPlain") or html_to_text(p.get("description"))]
+            # Some boards leave descriptionPlain empty and only fill the HTML field (seen live on Synthego).
+            parts = [p.get("openingPlain") or "", p.get("descriptionPlain") or html_to_text(p.get("description"))]
             for section in p.get("lists") or []:
                 parts.append(f"{section.get('text', '')}:\n{html_to_text(section.get('content'))}")
             parts.append(p.get("additionalPlain") or html_to_text(p.get("additional")))
@@ -38,6 +39,7 @@ class LeverFetcher(Fetcher):
             if sr.get("min") and sr.get("max"):
                 salary = f"{sr.get('currency', 'USD')} {sr['min']:,}-{sr['max']:,} {sr.get('interval', '')}".strip()
             jobs.append(Job(
+                extra={"workplace": workplace} if workplace else {},
                 ats=self.ats, company=company, company_slug=slug, external_id=str(p["id"]),
                 title=(p.get("text") or "").strip(), url=p.get("hostedUrl", ""), apply_url=p.get("applyUrl", ""),
                 location=location, country=country, is_remote=remote,

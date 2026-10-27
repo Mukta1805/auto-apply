@@ -43,17 +43,30 @@ REMOTE = re.compile(r"\b(remote|anywhere|distributed|work from home|wfh)\b", re.
 _STATE_ABBR = re.compile(r"(?:,|\s-)\s*([A-Z]{2})\b")
 
 
+_US_HINTS = {"US", "USA", "UNITEDSTATES", "UNITEDSTATESOFAMERICA", "AMERICA"}
+# Unambiguous US place words that appear inside messier strings ("SF Office", "San Francisco-HQ", "NYC Office").
+_US_SUBSTRINGS = re.compile(r"\b(sf|nyc|bay area|silicon valley|south san francisco|san francisco|new york|boston|"
+                            r"seattle|san diego|los angeles|chicago|research triangle|washington,? d\.?c)\b", re.I)
+
+
+def normalize_country(hint: str | None) -> str | None:
+    """Map country spellings seen on real boards ("U.S.A", "United States of America", "us") to ISO-ish codes."""
+    if not hint or not hint.strip():
+        return None
+    c = re.sub(r"[^A-Za-z]", "", hint).upper()
+    if c in _US_HINTS:
+        return "US"
+    return "XX" if c else None
+
+
 def classify(location: str, country_hint: str | None = None, remote_hint: bool | None = None) -> tuple[str | None, bool]:
     """Return (country, is_remote). country is "US", "XX" (non-US) or None (unknown)."""
     loc = location or ""
     low = loc.lower()
     is_remote = bool(remote_hint) or bool(REMOTE.search(loc))
-    if country_hint:
-        c = country_hint.strip().upper()
-        if c in {"US", "USA", "UNITED STATES", "UNITED STATES OF AMERICA"}:
-            return "US", is_remote
-        if len(c) == 2 or len(c) > 3:
-            return "XX", is_remote
+    hint = normalize_country(country_hint)
+    if hint:
+        return hint, is_remote
     if US_MARKERS.search(loc):
         return "US", is_remote
     for abbr in _STATE_ABBR.findall(loc):
@@ -68,6 +81,6 @@ def classify(location: str, country_hint: str | None = None, remote_hint: bool |
         if any(t in US_CITIES or t in US_STATES for t in tokens):
             return "US", is_remote
         return "XX", is_remote
-    if any(t in US_CITIES or t in US_STATES for t in tokens) or any(c in low for c in ("san francisco", "new york")):
+    if any(t in US_CITIES or t in US_STATES for t in tokens) or _US_SUBSTRINGS.search(low):
         return "US", is_remote
     return None, is_remote
