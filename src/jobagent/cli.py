@@ -1,10 +1,14 @@
 """Command line: python -m jobagent <command>
 
-  run      the daily pipeline (what the scheduled task calls)
-  detect   find the job board (Greenhouse/Lever/...) for companies marked "unknown" in companies.csv
-  export   rebuild the Excel workbook from the database only
-  stats    print a summary of the database and recent runs
-  doctor   check setup: config, knowledge base, keys, database, network
+  run         the daily pipeline (what the scheduled task calls)
+  apply       fill (and optionally submit) applications for today's selected jobs
+  outreach    Gmail sync, follow-ups and new emails only (the late-morning scheduled task)
+  auth-gmail  one-time Gmail sign-in (opens Google's consent screen)
+  inspect-form URL   show how one application form would be filled (nothing is typed or submitted)
+  detect      find the job board (Greenhouse/Lever/...) for companies marked "unknown" in companies.csv
+  export      rebuild the Excel workbook from the database only
+  stats       print a summary of the database and recent runs
+  doctor      check setup: config, knowledge base, keys, database, network
 """
 
 from __future__ import annotations
@@ -51,9 +55,9 @@ def _llm_factory(cfg: Config):
     return make
 
 
-async def cmd_run(cfg: Config, args) -> int:
-    opts = RunOptions(score=not args.no_score, fetch=not args.no_fetch, limit=args.limit,
-                      companies=args.company or [])
+async def cmd_run(cfg: Config, args, opts: RunOptions | None = None) -> int:
+    opts = opts or RunOptions(score=not args.no_score, fetch=not args.no_fetch, limit=args.limit,
+                              companies=args.company or [])
     store = Store(cfg.path("db"))
     try:
         with RunLock(cfg.path("db").with_name("run.lock"), float(cfg.run.get("stale_lock_hours", 6))):
@@ -62,8 +66,64 @@ async def cmd_run(cfg: Config, args) -> int:
     finally:
         store.close()
     print(json.dumps({k: stats.get(k) for k in ("status", "duration_s", "jobs_seen", "jobs_new", "scored",
-                                                "new_high", "new_medium", "workbook")}, indent=2))
+                                                "new_high", "new_medium", "apply", "outreach", "workbook")
+                      if stats.get(k) is not None}, indent=2, default=str))
     return {"ok": 0, "partial": 1}.get(stats.get("status"), 2)
+
+
+async def cmd_apply(cfg: Config, args) -> int:
+    dry = True if args.dry_run else (False if args.submit else None)
+    return await cmd_run(cfg, args, RunOptions(fetch=False, score=False, apply=True, outreach=False, dry_run=dry,
+                                               apply_limit=args.limit))
+
+
+async def cmd_inspect_form(cfg: Config, args) -> int:
+    """Open one application page and print how each field would be filled. Nothing is typed or submitted."""
+    from .apply.answers import load_answers
+    from .apply.browser import PlaywrightDriver
+    from .apply.mapper import FieldMapper
+    answers = load_answers(cfg.path("kb_dir") / "answers.yaml")
+    resume = cfg.path("kb_dir") / "resumes" / f"resume_{args.track}.pdf"
+    acfg = cfg.data["apply"]
+    async with PlaywrightDriver(cfg.path("browser_profile"), headless=bool(acfg.get("headless", False)),
+                                executable_path=acfg.get("browser_executable") or None) as d:
+        await d.goto(args.url)
+        form = await d.extract()
+    plan = FieldMapper(answers, resume, writer_available=True).plan(form)
+    print(f"{len(form.get('fields', []))} fields, submit button: {bool(form.get('submit'))}, captcha: {form.get('captcha')}")
+    for a in plan.actions:
+        print(f"  {a.kind:9s} {a.label[:60]:60s} <- {('[file] ' + Path(a.value).name) if a.kind == 'upload' else a.value[:60]}")
+    for f in plan.writer_fields:
+        print(f"  {'claude':9s} {f.get('label', '')[:60]:60s} <- written per job")
+    if plan.cover_letter_field:
+        print("  upload    Cover letter                                                 <- written per job")
+    for r in plan.manual_reasons:
+        print(f"  MANUAL: {r}")
+    return 0
+
+
+async def cmd_outreach(cfg: Config, args) -> int:
+    return await cmd_run(cfg, args, RunOptions(only_outreach=True, outreach=True))
+
+
+async def cmd_auth_gmail(cfg: Config, args) -> int:
+    from .apply.answers import load_answers
+    from .outreach.gmail import GmailClient, authorize_interactive
+    creds = cfg.path("credentials_dir")
+    secret = creds / "client_secret.json"
+    if not secret.exists():
+        print(f"Missing {secret}. Download the OAuth client (Desktop app) JSON from Google Cloud Console "
+              "and save it there (see README, 'Connect Gmail').")
+        return 1
+    authorize_interactive(secret, creds / "gmail_token.json")
+    async with _http(cfg) as http:
+        email = await GmailClient(http, creds / "gmail_token.json").profile_email()
+    expected = load_answers(cfg.path("kb_dir") / "answers.yaml").get("identity.email")
+    print(f"Gmail connected: {email}")
+    if expected and email.lower() != str(expected).lower():
+        print(f"WARNING: answers.yaml identity.email is {expected}, but you signed in as {email}.")
+        return 1
+    return 0
 
 
 async def cmd_detect(cfg: Config, args) -> int:
@@ -83,7 +143,8 @@ async def cmd_detect(cfg: Config, args) -> int:
 def cmd_export(cfg: Config, args) -> int:
     store = Store(cfg.path("db"))
     try:
-        path = build_workbook(store, cfg.path("workbook"), cfg.data["workbook"])
+        path = build_workbook(store, cfg.path("workbook"), {**cfg.data["workbook"],
+                              "follow_up_days": cfg.data["outreach"].get("follow_up_days", [4, 9])})
     finally:
         store.close()
     print(f"Workbook written: {path}")
@@ -120,10 +181,27 @@ async def cmd_doctor(cfg: Config, args) -> int:
     except FileNotFoundError as exc:
         checks.append(("knowledge base", False, str(exc)))
     answers = cfg.path("kb_dir") / "answers.yaml"
-    checks.append(("kb/answers.yaml", answers.exists(), "needed for auto-apply (phase 2)"))
+    checks.append(("kb/answers.yaml", answers.exists(), "needed for auto-apply"))
     for name in ("resume_business.pdf", "resume_research.pdf"):
         checks.append((f"kb/resumes/{name}", (cfg.path("kb_dir") / "resumes" / name).exists(), ""))
     checks.append(("ANTHROPIC_API_KEY set", bool(cfg.secret("ANTHROPIC_API_KEY")), "in .env"))
+    from .apply.answers import RECOMMENDED_KEYS, load_answers
+    answers = load_answers(cfg.path("kb_dir") / "answers.yaml")
+    missing = answers.missing()
+    checks.append(("answers.yaml complete (auto-apply)", not missing,
+                   ("missing: " + ", ".join(missing)) if missing else "ok"))
+    soft = answers.missing(RECOMMENDED_KEYS)
+    if soft:
+        checks.append(("answers.yaml recommended", True, "empty (optional): " + ", ".join(soft)))
+    import importlib.util
+    has_pw = importlib.util.find_spec("playwright") is not None
+    checks.append(("Playwright installed (auto-apply)", has_pw,
+                   "" if has_pw else "pip install playwright && python -m playwright install chromium"))
+    checks.append(("APOLLO_API_KEY set (outreach)", bool(cfg.secret("APOLLO_API_KEY")), "in .env"))
+    token = cfg.path("credentials_dir") / "gmail_token.json"
+    checks.append(("Gmail connected (outreach)", token.exists(), "run: python -m jobagent auth-gmail"))
+    checks.append(("apply.enabled / dry_run", True, f"{cfg.apply.get('enabled')} / {cfg.apply.get('dry_run')}"))
+    checks.append(("outreach.enabled / mode", True, f"{cfg.outreach.get('enabled')} / {cfg.outreach.get('mode')}"))
     try:
         companies = load_companies(cfg.path("companies_csv"))
         unknown = sum(1 for c in companies if c.ats == "unknown")
@@ -153,8 +231,10 @@ async def cmd_doctor(cfg: Config, args) -> int:
                 checks.append(("Anthropic API key works", False, f"{type(exc).__name__}: {exc}"[:200]))
     width = max(len(c[0]) for c in checks)
     ok = True
+    optional = ("kb/answers.yaml", "answers.yaml complete (auto-apply)", "Playwright installed (auto-apply)",
+                "APOLLO_API_KEY set (outreach)", "Gmail connected (outreach)")
     for name, passed, detail in checks:
-        ok &= passed or name == "kb/answers.yaml"
+        ok &= passed or name in optional
         print(f"  [{'OK ' if passed else 'XX '}] {name.ljust(width)}  {detail}")
     return 0 if ok else 1
 
@@ -169,6 +249,16 @@ def main(argv: list[str] | None = None) -> int:
     p_run.add_argument("--no-fetch", action="store_true", help="skip fetching; re-filter/score what is stored")
     p_run.add_argument("--limit", type=int, help="score at most N jobs this run")
     p_run.add_argument("--company", action="append", help="only fetch this company (repeatable)")
+    p_app = sub.add_parser("apply", help="apply to today's selected jobs (no fetching or scoring)")
+    p_app.add_argument("--limit", type=int, help="at most N applications this run")
+    g = p_app.add_mutually_exclusive_group()
+    g.add_argument("--dry-run", action="store_true", help="fill forms but don't submit (overrides config)")
+    g.add_argument("--submit", action="store_true", help="really submit (overrides config dry_run)")
+    sub.add_parser("outreach", help="Gmail sync, follow-ups and new emails only")
+    p_ins = sub.add_parser("inspect-form", help="show how a job's application form would be filled (no typing)")
+    p_ins.add_argument("url")
+    p_ins.add_argument("--track", choices=["business", "research"], default="business")
+    sub.add_parser("auth-gmail", help="one-time Gmail sign-in")
     p_det = sub.add_parser("detect", help="detect job boards for companies marked unknown")
     p_det.add_argument("--redetect", action="store_true", help="also retry companies marked unsupported")
     sub.add_parser("export", help="rebuild the workbook from the database")
@@ -185,6 +275,14 @@ def main(argv: list[str] | None = None) -> int:
     try:
         if args.command == "run":
             return asyncio.run(cmd_run(cfg, args))
+        if args.command == "apply":
+            return asyncio.run(cmd_apply(cfg, args))
+        if args.command == "inspect-form":
+            return asyncio.run(cmd_inspect_form(cfg, args))
+        if args.command == "outreach":
+            return asyncio.run(cmd_outreach(cfg, args))
+        if args.command == "auth-gmail":
+            return asyncio.run(cmd_auth_gmail(cfg, args))
         if args.command == "detect":
             return asyncio.run(cmd_detect(cfg, args))
         if args.command == "export":

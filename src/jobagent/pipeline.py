@@ -1,4 +1,5 @@
-"""The daily run: sync companies -> read workbook edits -> fetch -> filter -> hydrate -> score -> export.
+"""The daily run: companies -> workbook edits -> fetch -> filter -> hydrate -> score -> apply -> outreach ->
+export -> summary email -> maintenance. An "outreach" run (late morning) only syncs Gmail and sends emails.
 
 Each stage is timed and logged. A failing stage marks the run "partial" but never stops the
 workbook from being written. Only one run can hold the lock at a time.
@@ -33,12 +34,21 @@ from .scoring import Scorer
 log = logging.getLogger("jobagent.pipeline")
 
 
+class _Done(Exception):
+    """Ends a shortened run early (outreach-only)."""
+
+
 @dataclass
 class RunOptions:
     score: bool = True
     fetch: bool = True
     limit: int | None = None                 # max jobs to score this run
     companies: list[str] = field(default_factory=list)   # restrict fetch to these names (testing)
+    apply: bool | None = None                # None = follow config apply.enabled
+    outreach: bool | None = None             # None = follow config outreach.enabled
+    dry_run: bool | None = None              # None = follow config apply.dry_run
+    apply_limit: int | None = None
+    only_outreach: bool = False              # the late-morning run: Gmail sync + emails only
 
 
 class RunLock:
@@ -66,12 +76,16 @@ class RunLock:
 
 class Pipeline:
     def __init__(self, cfg: Config, store: Store, http: HttpClient, llm_factory: Callable[[], Any] | None,
-                 options: RunOptions | None = None):
+                 options: RunOptions | None = None, driver_factory: Callable[[], Any] | None = None,
+                 apollo: Any = None, gmail: Any = None):
         self.cfg = cfg
         self.store = store
         self.http = http
         self.llm_factory = llm_factory
         self.opts = options or RunOptions()
+        self._driver_factory = driver_factory
+        self._apollo = apollo
+        self._gmail = gmail
         self.stats: dict[str, Any] = {"version": __version__}
         self.failed_stages: list[str] = []
         now = datetime.now()
@@ -86,6 +100,11 @@ class Pipeline:
         t0 = time.perf_counter()
         error = None
         try:
+            if self.opts.only_outreach:
+                await self._stage("edits", self.import_edits)
+                await self._stage("outreach", self.outreach)
+                await self._stage("export", self.export)
+                raise _Done
             await self._stage("companies", self.sync_companies)
             await self._stage("edits", self.import_edits)
             if self.opts.score:
@@ -97,8 +116,16 @@ class Pipeline:
             await self._stage("filter2", self.filter_jobs)
             if self.opts.score:
                 await self._stage("score", self.score)
+            if self._enabled("apply"):
+                await self._stage("apply", self.apply)
+            if self._enabled("outreach"):
+                await self._stage("outreach", self.outreach)
             await self._stage("export", self.export)
+            if self.cfg.data.get("notify", {}).get("summary_email", False):
+                await self._stage("summary", self.summary)
             await self._stage("maintain", lambda st: st.update(self.store.maintenance()))
+        except _Done:
+            pass
         except Exception as exc:  # unexpected: still record the run
             error = f"{type(exc).__name__}: {exc}"
             log.critical("run aborted: %s\n%s", error, traceback.format_exc())
@@ -300,8 +327,79 @@ class Pipeline:
         s.update(scored=len(out.scored), errors=len(out.errors), skipped_budget=out.skipped_budget,
                  **out.totals.as_dict())
 
+    # ---- phase 2 ----------------------------------------------------
+    def _enabled(self, name: str) -> bool:
+        flag = getattr(self.opts, name)
+        return bool(self.cfg.data.get(name, {}).get("enabled", False)) if flag is None else bool(flag)
+
+    def _answers(self):
+        from .apply.answers import load_answers
+        return load_answers(self.cfg.path("kb_dir") / "answers.yaml")
+
+    def _sonnet(self):
+        return self.llm_factory() if self.llm_factory else None
+
+    async def apply(self, s: dict) -> None:
+        from .apply.browser import PlaywrightDriver
+        from .apply.engine import ApplyEngine
+        from .apply.writer import AnswerWriter
+        acfg = dict(self.cfg.data["apply"])
+        if self.opts.dry_run is not None:
+            acfg["dry_run"] = self.opts.dry_run
+        if self.opts.apply_limit is not None:
+            target = dict(self.cfg.run["daily_application_target"])
+            target["max"] = min(int(target["max"]), self.opts.apply_limit)
+            run_cfg = {**self.cfg.data["run"], "daily_application_target": target}
+        else:
+            run_cfg = self.cfg.data["run"]
+        answers = self._answers()
+        client = self._sonnet()
+        writer = None
+        if client is not None:
+            writer = AnswerWriter(client, load_kb(self.cfg.path("kb_dir")), answers.summary_for_writer(),
+                                  self.cfg.data["writing"], self.cfg.data["pricing"], self.run_id)
+        factory = self._driver_factory or (lambda: PlaywrightDriver(
+            self.cfg.path("browser_profile"), headless=bool(acfg.get("headless", False)),
+            executable_path=acfg.get("browser_executable") or None))
+        engine = ApplyEngine(self.store, acfg, run_cfg, answers, self.cfg.path("kb_dir"), self.cfg.path("output_dir"),
+                             factory, writer, self.run_id)
+        await engine.run(s)
+        if writer is not None:
+            self.cost += writer.cost
+        self.stats["apply"] = {k: v for k, v in s.items() if k != "duration_s"}
+
+    def _gmail_client(self):
+        from .outreach.gmail import GmailClient
+        return self._gmail or GmailClient(self.http, self.cfg.path("credentials_dir") / "gmail_token.json")
+
+    async def outreach(self, s: dict) -> None:
+        from .outreach.apollo import ApolloClient
+        from .outreach.engine import OutreachEngine
+        from .outreach.writer import EmailWriter
+        answers = self._answers()
+        kb = load_kb(self.cfg.path("kb_dir"))
+        apollo = self._apollo
+        if apollo is None and self.cfg.secret("APOLLO_API_KEY"):
+            apollo = ApolloClient(self.http, self.cfg.secret("APOLLO_API_KEY"))
+        client = self._sonnet()
+        writer = EmailWriter(client, kb, self.cfg.data["writing"], self.cfg.data["pricing"], self.run_id) if client else None
+        engine = OutreachEngine(self.store, self.cfg.data["outreach"], self.cfg.data["run"], answers, kb.lists,
+                                self.run_id, apollo, self._gmail_client(), writer)
+        await engine.run(s)
+        self.stats["outreach"] = {k: v for k, v in s.items() if k != "duration_s"}
+
+    async def summary(self, s: dict) -> None:
+        from .outreach.summary import send_summary
+        gmail = self._gmail_client()
+        sender = self._answers().get("identity.email")
+        if not (gmail.configured and sender):
+            s["skipped"] = "Gmail not connected"
+            return
+        s["sent"] = await send_summary(self.store, gmail, sender, self.stats, self.cfg.run.get("timezone", "America/New_York"))
+
     def export(self, s: dict) -> None:
         self.store.update_run_progress(self.run_id, self.stats, self.cost)   # so the dashboard shows this run
-        path = build_workbook(self.store, self.cfg.path("workbook"), self.cfg.data["workbook"], self.stats)
+        path = build_workbook(self.store, self.cfg.path("workbook"), {**self.cfg.data["workbook"], "follow_up_days": self.cfg.data["outreach"].get("follow_up_days", [4, 9])},
+                              self.stats)
         s["path"] = str(path)
         self.stats["workbook"] = str(path)

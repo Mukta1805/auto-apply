@@ -85,10 +85,13 @@ CREATE TABLE IF NOT EXISTS jobs (
     user_status TEXT DEFAULT '',
     user_note TEXT DEFAULT '',
     -- phase 2
-    apply_status TEXT,
+    apply_status TEXT,           -- applied | dry_run | manual | failed
     apply_method TEXT,
     applied_at TEXT,
-    apply_error TEXT
+    apply_error TEXT,
+    apply_screenshot TEXT,
+    apply_attempts INTEGER DEFAULT 0,
+    apply_details TEXT
 );
 CREATE INDEX IF NOT EXISTS ix_jobs_company ON jobs(company_id, is_active);
 CREATE INDEX IF NOT EXISTS ix_jobs_filter ON jobs(filter_status, is_active);
@@ -122,6 +125,50 @@ CREATE TABLE IF NOT EXISTS llm_usage (
 );
 CREATE INDEX IF NOT EXISTS ix_usage_created ON llm_usage(created_at);
 
+CREATE TABLE IF NOT EXISTS contacts (
+    id INTEGER PRIMARY KEY,
+    company_id INTEGER REFERENCES companies(id),
+    job_id INTEGER REFERENCES jobs(id),
+    apollo_id TEXT,
+    name TEXT,
+    first_name TEXT,
+    title TEXT,
+    email TEXT,
+    email_status TEXT,
+    linkedin_url TEXT,
+    source TEXT,
+    created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS ix_contacts_job ON contacts(job_id);
+CREATE INDEX IF NOT EXISTS ix_contacts_email ON contacts(email);
+
+CREATE TABLE IF NOT EXISTS emails (
+    id INTEGER PRIMARY KEY,
+    job_id INTEGER REFERENCES jobs(id),
+    contact_id INTEGER REFERENCES contacts(id),
+    kind TEXT NOT NULL,            -- initial | follow_up_1 | follow_up_2 | summary
+    status TEXT NOT NULL,          -- drafted | sent | failed | skipped
+    subject TEXT,
+    body TEXT,
+    gmail_draft_id TEXT,
+    gmail_message_id TEXT,
+    gmail_thread_id TEXT,
+    rfc_message_id TEXT,
+    created_at TEXT NOT NULL,
+    sent_at TEXT,
+    replied_at TEXT,
+    bounced INTEGER DEFAULT 0,
+    error TEXT
+);
+CREATE INDEX IF NOT EXISTS ix_emails_job ON emails(job_id);
+CREATE INDEX IF NOT EXISTS ix_emails_status ON emails(status, sent_at);
+
+CREATE TABLE IF NOT EXISTS suppression (
+    email TEXT PRIMARY KEY,
+    reason TEXT,
+    created_at TEXT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS pending_batches (
     batch_id TEXT PRIMARY KEY,
     run_id TEXT,
@@ -151,6 +198,7 @@ class Store:
                        "temp_store=MEMORY", "cache_size=-32000", "busy_timeout=30000"):
             self.conn.execute(f"PRAGMA {pragma}")
         self.conn.executescript(SCHEMA)
+        self._migrate()
         self.conn.execute("INSERT OR REPLACE INTO meta(key, value) VALUES('schema_version', ?)", (str(SCHEMA_VERSION),))
 
     def maintenance(self, every_days: int = 7) -> dict:
@@ -166,6 +214,20 @@ class Store:
         self.conn.execute("INSERT OR REPLACE INTO meta(key, value) VALUES('last_vacuum', ?)", (utcnow(),))
         after = self.path.stat().st_size
         return {"vacuum": "done", "mb_before": round(before / 1e6, 1), "mb_after": round(after / 1e6, 1)}
+
+    # Columns added after the first release; ALTER TABLE keeps existing databases working.
+    _ADDED_COLUMNS = [
+        ("companies", "domain", "TEXT DEFAULT ''"),
+        ("jobs", "apply_screenshot", "TEXT"), ("jobs", "apply_attempts", "INTEGER DEFAULT 0"),
+        ("jobs", "apply_details", "TEXT"),
+    ]
+
+    def _migrate(self) -> None:
+        for table, column, decl in self._ADDED_COLUMNS:
+            cols = {r[1] for r in self.conn.execute(f"PRAGMA table_info({table})")}
+            if column not in cols:
+                self.conn.execute(f"ALTER TABLE {table} ADD COLUMN {column} {decl}")
+                log.info("database migrated: added %s.%s", table, column)
 
     def close(self) -> None:
         try:

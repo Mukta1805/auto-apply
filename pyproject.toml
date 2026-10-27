@@ -14,6 +14,8 @@ dependencies = [
     "openpyxl>=3.1.5,<4",
     "pyyaml>=6,<7",
     "python-dotenv>=1,<2",
+    "playwright>=1.48,<2",
+    "google-auth-oauthlib>=1.2,<2",
     "tzdata>=2024.1; sys_platform == 'win32'",
 ]
 
@@ -25,6 +27,9 @@ jobagent = "jobagent.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+"jobagent.apply" = ["*.js"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

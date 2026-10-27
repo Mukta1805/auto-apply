@@ -1,5 +1,6 @@
-# Standard application answers. Copy to kb/answers.yaml (git-ignored) and fill in.
-# The tool never improvises these: legal and work-authorization answers come only from this file.
+# Standard application answers. Copy to kb/answers.yaml (git-ignored) and fill in every "" value.
+# The tool never improvises these: legal, work-authorization and demographic answers come only from this file.
+# `python -m jobagent doctor` lists anything still missing.
 
 identity:
   legal_first_name: ""
@@ -8,23 +9,32 @@ identity:
   email: ""
   phone: ""
   address_line1: ""
-  city: ""
-  state: ""
+  city: "New York"
+  state: "NY"
   postal_code: ""
   country: "United States"
   linkedin_url: ""
   website_url: ""
+  github_url: ""
+  current_company: "Columbia University"   # shown in "Current company" fields
+  pronouns: ""                             # left blank on forms unless filled in
 
 work_authorization:
-  authorized_to_work_in_us: "Yes"          # on OPT / STEM OPT
-  requires_sponsorship_now_or_future: "Yes"
-  visa_status: "F-1, OPT (STEM OPT eligible)"
+  # Seen on real forms, worded differently; each gets its own answer.
+  authorized_to_work_in_us: "Yes"          # "Are you legally authorized to work in the United States?" (OPT)
+  authorized_without_sponsorship: "No"     # "...authorized to work WITHOUT requiring employer-sponsored authorization?" (confirm)
+  requires_sponsorship_now_or_future: "Yes"   # "Will you now or in the future require sponsorship (H-1B, OPT...)?"
+  work_authorization_status: "Can work for any employer"   # Ashby option list; OPT allows any employer (confirm)
+  visa_status: "F-1 student; OPT/STEM OPT after graduation"
+  sponsorship_explanation: "I will be on F-1 OPT (STEM OPT eligible) from January 2027 and will need H-1B sponsorship in the future."
   opt_ead_expected_start: ""               # YYYY-MM-DD
   opt_ead_expected_end: ""
 
 availability:
   earliest_start_date: "Early January 2027"
+  start_date_text: "I can start in early January 2027, after completing my MS at Columbia on December 23, 2026."
   willing_to_relocate: "Yes"
+  can_work_onsite: "Yes"                   # "Are you able to work from our office...?"
   work_arrangement: "On-site, hybrid or remote"
 
 compensation:
@@ -32,20 +42,34 @@ compensation:
   minimum_base_usd: 80000
 
 education:
-  - {school: "Columbia University", degree: "MS, Biomedical Engineering", gpa: "3.91", end: "2026-12"}
-  - {school: "MIT-ADT University", degree: "B.Tech, Bioengineering", gpa: "3.90", end: "2025-06"}
+  - {school: "Columbia University", degree: "Master's Degree", degree_full: "MS, Biomedical Engineering",
+     discipline: "Biomedical Engineering", gpa: "3.91", start: "2025-09", end: "2026-12"}
+  - {school: "MIT-ADT University", degree: "Bachelor's Degree", degree_full: "B.Tech, Bioengineering",
+     discipline: "Bioengineering", gpa: "3.90", start: "2021-08", end: "2025-06"}
 
 defaults:
   how_did_you_hear: "Company careers page"
   over_18: "Yes"
   previously_employed_here: "No"
   background_check_consent: "Yes"
+  sms_consent: "No"                        # "Would you like to receive SMS about your application?"
+  accept_privacy_acknowledgement: true     # tick "I acknowledge the applicant privacy policy" boxes
+  referred_by: ""
 
 eeo:                                       # "Decline to self-identify" unless Riya chooses otherwise
   gender: "Decline to self-identify"
   race_ethnicity: "Decline to self-identify"
+  hispanic_latino: "Decline to self-identify"
   veteran_status: "Decline to self-identify"
   disability_status: "Decline to self-identify"
+  sexual_orientation: "Decline to self-identify"
+  transgender: "Decline to self-identify"
+  age_range: "Decline to self-identify"
+
+cover_letter:
+  # When a form requires a cover letter, Claude writes one for that job from Riya's profile.
+  # Set to false to send those jobs to the Manual tab instead.
+  auto_write: true
 
 references: []
 # - {name: "", title: "", company: "", email: "", phone: "", relation: ""}

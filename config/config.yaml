@@ -17,6 +17,8 @@ paths:
   kb_dir: kb
   companies_csv: config/companies.csv
   workbook: output/riya_job_tracker.xlsx
+  credentials_dir: credentials        # gmail_token.json, client_secret.json (git-ignored)
+  browser_profile: data/browser_profile
 
 logging:
   level: INFO            # file log level (DEBUG for troubleshooting)
@@ -208,13 +210,27 @@ workbook:
   filtered_out_days: 3        # "Filtered Out" tab shows jobs dropped in the last N days
   status_options: ["", "apply", "skip", "applied (manual)", "interviewing", "rejected", "offer"]
 
-apply:                        # phase 2
-  enabled: false
-  dry_run: true
+apply:
+  enabled: false              # turn on once kb/answers.yaml is filled in
+  dry_run: true               # fill forms and screenshot them, but don't submit. Set false to submit.
+  auto_boards: [greenhouse, lever, ashby]   # forms verified live; other boards go to the Manual tab
   max_per_company_30d: 2
+  pause_seconds: [45, 120]    # random pause between applications
+  max_minutes_per_run: 150
+  submit_timeout_seconds: 35
+  headless: false             # a visible browser window is blocked less often by job sites
+  browser_executable: ""      # optional path to Chrome/Chromium; default is Playwright's Chromium
 
-outreach:                     # phase 2
-  enabled: false
-  mode: draft                 # draft | send
+outreach:
+  enabled: false              # turn on after APOLLO_API_KEY is set and Gmail is connected
+  mode: draft                 # draft = Gmail drafts Riya sends herself; send = sent automatically
   max_new_emails_per_day: 30
+  max_follow_ups_per_day: 40
+  max_reveals_per_day: 30     # Apollo email reveals (each uses credits)
   follow_up_days: [4, 9]
+  company_cooldown_days: 14   # at most one first email per company in this window
+  send_window: ["09:00", "17:30"]
+  send_on_weekends: false
+
+notify:
+  summary_email: true         # short daily summary to Riya's own inbox (needs Gmail connected)

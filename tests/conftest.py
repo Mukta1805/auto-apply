@@ -45,7 +45,17 @@ class FakeMessages:
 
     async def create(self, **params):
         self.calls.append(params)
-        first = len(self.calls) == 1
+        props = params.get("output_config", {}).get("format", {}).get("schema", {}).get("properties", {})
+        if "answers" in props:                       # application answer writer
+            text = params["messages"][0]["content"]
+            ids = [line.split('"field_id": ')[1].split('"')[1] for line in text.splitlines() if '"field_id": ' in line]
+            return fake_message({"answers": [{"field_id": i, "answer": "I use Claude to draft and Excel to model.",
+                                              "option": "", "confident": True} for i in ids]})
+        if "letter" in props:
+            return fake_message({"letter": "Dear Hiring Team,\n\nI am applying.\n\nRiya Sancheti", "confident": True})
+        if "subject" in props:                       # outreach email writer
+            return fake_message({"subject": "Applied: a role", "body": "Hi there,\n\nI just applied.", "confident": True})
+        first = len([c for c in self.calls if "track" in json.dumps(c.get("output_config", {}))]) == 1
         return fake_message(self.decide(params), cache_read=0 if first else 5000, cache_write=5000 if first else 0)
 
 

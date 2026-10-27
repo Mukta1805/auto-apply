@@ -41,13 +41,15 @@ MATCH_COLUMNS = [  # (header, width, key)
     ("Link", 12, "url"), ("Status", 16, "user_status"), ("Notes", 30, "user_note"),
 ]
 APPLIED_COLUMNS = [("Job ID", 8), ("Track", 10), ("Company", 22), ("Role", 38), ("Applied on", 12),
-                   ("Method", 12), ("Confirmation", 30), ("Link", 12), ("Status", 16), ("Notes", 30)]
-MANUAL_COLUMNS = [("Job ID", 8), ("Track", 10), ("Score", 7), ("Company", 22), ("Role", 38), ("Why manual", 30),
-                  ("Prepared answers", 40), ("Link", 12), ("Status", 16), ("Notes", 30)]
+                   ("Method", 12), ("Confirmation", 34), ("Screenshot", 16), ("Link", 12), ("Status", 16), ("Notes", 30)]
+DRYRUN_COLUMNS = [("Job ID", 8), ("Track", 10), ("Score", 7), ("Company", 22), ("Role", 38), ("Filled on", 12),
+                  ("Answers used", 60), ("Screenshot", 16), ("Link", 12), ("Status", 16), ("Notes", 30)]
+MANUAL_COLUMNS = [("Job ID", 8), ("Track", 10), ("Score", 7), ("Company", 22), ("Role", 38), ("Why manual", 40),
+                  ("Prepared answers", 60), ("Link", 12), ("Status", 16), ("Notes", 30)]
 CONTACT_COLUMNS = [("Job ID", 8), ("Company", 22), ("Role", 38), ("Contact", 22), ("Title", 26), ("Email", 28),
-                   ("Source", 12), ("Email status", 16), ("Last sent", 12), ("Next follow-up", 14), ("Reply", 10)]
+                   ("Source", 14), ("Email status", 14), ("Last email", 12), ("Next follow-up", 14), ("Reply", 12)]
 FILTERED_COLUMNS = [("Company", 22), ("Role", 40), ("Location", 26), ("Reason", 50), ("Link", 12)]
-EDITABLE_SHEETS = ("High Match", "Medium Match", "Low Match", "Applied", "Manual")
+EDITABLE_SHEETS = ("High Match", "Medium Match", "Low Match", "Applied", "Dry Run", "Manual")
 
 
 # ---- reading Riya's edits back ---------------------------------------------
@@ -140,7 +142,7 @@ def _match_row(r: dict[str, Any], today: str) -> list[Any]:
             return "; ".join(json.loads(raw or "[]"))
         except (TypeError, ValueError):
             return raw or ""
-    method = "auto (phase 2)" if r["ats"] in AUTO_APPLY_ATS else "manual"
+    method = "auto" if r["ats"] in AUTO_APPLY_ATS else "manual"
     values = {
         "id": r["id"], "new": "NEW" if (r["first_seen_at"] or "")[:10] == today else "",
         "track": (r["track"] or "").title(), "score": r["score"], "company": r["company"], "title": r["title"],
@@ -209,7 +211,7 @@ def _write_dashboard(wb: Workbook, store: Store, stats: dict[str, Any]) -> None:
         ("Applied", "=MAX(COUNTA(Applied!A:A)-1,0)"),
         ("Waiting for manual apply", "=MAX(COUNTA(Manual!A:A)-1,0)"),
         ("Interviewing", "=COUNTIF('High Match'!S2:S5000,\"interviewing\")+COUNTIF('Medium Match'!S2:S5000,\"interviewing\")"
-                         "+COUNTIF(Applied!I2:I5000,\"interviewing\")"),
+                         "+COUNTIF(Applied!J2:J5000,\"interviewing\")"),
     ]
     ws["A4"] = "Pipeline"
     ws["A4"].font = Font(name=FONT, bold=True, size=11)
@@ -267,17 +269,52 @@ def _write_dashboard(wb: Workbook, store: Store, stats: dict[str, Any]) -> None:
                      "or \"apply\" to queue a Low match. Everything else is rebuilt each morning.")
     ws[f"A{row}"].font = small
     ws[f"A{row + 1}"] = ("Score: 0-100 fit from Claude. High >= 75, Medium 50-74. \"NEW\" = first seen today. "
-                         "Apply method \"auto\" = form can be auto-filled once phase 2 is on.")
+                         "Apply method \"auto\" = the tool can fill this form. Manual tab = jobs only Riya can finish.")
     ws[f"A{row + 1}"].font = small
+
+
+def _shot_name(path: str | None) -> str:
+    return Path(path).name if path else ""
+
+
+def _answers_text(details: str | None) -> str:
+    if not details:
+        return ""
+    try:
+        d = json.loads(details)
+    except ValueError:
+        return ""
+    parts = [f"{a['label'][:50]}: {a['value'][:120]}" for a in d.get("answers", []) if a.get("source") == "writer"]
+    reasons = (d.get("plan") or {}).get("manual_reasons") or []
+    return " | ".join(parts)[:1500] or ("; ".join(reasons)[:500] if reasons else "")
+
+
+def _email_state(r) -> str:
+    if r["email_status"] == "none":
+        return "no verified email"
+    if r["email_status"] == "warm":
+        return "warm: ask for referral"
+    return r["last_status"] or "queued"
+
+
+def _next_follow_up(r, cfg: dict) -> str:
+    if r["replied"] or r["bounced"] or not r["first_sent"]:
+        return ""
+    days = [int(d) for d in cfg.get("follow_up_days", [4, 9])]
+    n = int(r["fups"] or 0)
+    if n >= len(days):
+        return "done"
+    due = datetime.fromisoformat(r["first_sent"]) + timedelta(days=days[n])
+    return due.date().isoformat()
 
 
 def build_workbook(store: Store, path: Path, cfg: dict, stats: dict[str, Any] | None = None) -> Path:
     """Write the workbook; returns the path actually written."""
     status_options = list(cfg.get("status_options", []))
     today = datetime.now(timezone.utc).date().isoformat()
-    hidden = "('skip','rejected')"
+    hidden = "('skip','rejected','applied (manual)')"
     base = (f"SELECT * FROM jobs WHERE is_active=1 AND band=? AND COALESCE(user_status,'') NOT IN {hidden} "
-            "AND COALESCE(apply_status,'') NOT IN ('applied','manual') ORDER BY score DESC, first_seen_at DESC")
+            "AND COALESCE(apply_status,'') NOT IN ('applied','manual','dry_run') ORDER BY score DESC, first_seen_at DESC")
     wb = Workbook()
     _write_dashboard(wb, store, stats or {})
     _write_match_sheet(wb, "High Match", store.query(base, ("High",)), today, status_options)
@@ -285,17 +322,42 @@ def build_workbook(store: Store, path: Path, cfg: dict, stats: dict[str, Any] | 
     low_limit = int(cfg.get("low_match_max_rows", 400))
     _write_match_sheet(wb, "Low Match", store.query(base + f" LIMIT {low_limit}", ("Low",)), today, status_options)
 
-    applied = store.query("SELECT * FROM jobs WHERE apply_status='applied' ORDER BY applied_at DESC")
+    applied = store.query("SELECT * FROM jobs WHERE apply_status='applied' OR user_status='applied (manual)' "
+                          "ORDER BY COALESCE(applied_at, last_seen_at) DESC")
     _write_simple_sheet(wb, "Applied", APPLIED_COLUMNS,
-                        [[r["id"], (r["track"] or "").title(), r["company"], r["title"], (r["applied_at"] or "")[:10],
-                          r["apply_method"] or "", "", "Open", r["user_status"] or "", r["user_note"] or ""]
+                        [[r["id"], (r["track"] or "").title(), r["company"], r["title"],
+                          (r["applied_at"] or "")[:10], "manual" if r["user_status"] == "applied (manual)" else "auto",
+                          r["apply_error"] or ("confirmed" if r["apply_status"] == "applied" else ""),
+                          _shot_name(r["apply_screenshot"]), "Open", r["user_status"] or "", r["user_note"] or ""]
                          for r in applied], status_options, [r["apply_url"] or r["url"] for r in applied])
-    manual = store.query("SELECT * FROM jobs WHERE apply_status='manual' ORDER BY score DESC")
+    dry = store.query("SELECT * FROM jobs WHERE apply_status='dry_run' ORDER BY score DESC")
+    if dry:
+        _write_simple_sheet(wb, "Dry Run", DRYRUN_COLUMNS,
+                            [[r["id"], (r["track"] or "").title(), r["score"], r["company"], r["title"],
+                              (r["last_seen_at"] or "")[:10], _answers_text(r["apply_details"]),
+                              _shot_name(r["apply_screenshot"]), "Open", r["user_status"] or "", r["user_note"] or ""]
+                             for r in dry], status_options, [r["apply_url"] or r["url"] for r in dry])
+    manual = store.query("SELECT * FROM jobs WHERE apply_status='manual' AND COALESCE(user_status,'') NOT IN "
+                         "('skip','rejected','applied (manual)') ORDER BY score DESC")
     _write_simple_sheet(wb, "Manual", MANUAL_COLUMNS,
                         [[r["id"], (r["track"] or "").title(), r["score"], r["company"], r["title"],
-                          r["apply_error"] or "", "", "Open", r["user_status"] or "", r["user_note"] or ""]
+                          r["apply_error"] or "", _answers_text(r["apply_details"]), "Open", r["user_status"] or "",
+                          r["user_note"] or ""]
                          for r in manual], status_options, [r["apply_url"] or r["url"] for r in manual])
-    _write_simple_sheet(wb, "Contacts", CONTACT_COLUMNS, [], status_options)
+    contacts = store.query(
+        """SELECT k.*, j.title AS role, j.company, j.id AS jid,
+                  (SELECT MAX(COALESCE(e.sent_at, e.created_at)) FROM emails e WHERE e.contact_id=k.id) AS last_email,
+                  (SELECT MIN(e.sent_at) FROM emails e WHERE e.contact_id=k.id AND e.kind='initial' AND e.status='sent') AS first_sent,
+                  (SELECT COUNT(*) FROM emails e WHERE e.contact_id=k.id AND e.kind LIKE 'follow_up%') AS fups,
+                  (SELECT MAX(e.replied_at) FROM emails e WHERE e.contact_id=k.id) AS replied,
+                  (SELECT MAX(e.bounced) FROM emails e WHERE e.contact_id=k.id) AS bounced,
+                  (SELECT e.status FROM emails e WHERE e.contact_id=k.id ORDER BY e.id DESC LIMIT 1) AS last_status
+           FROM contacts k JOIN jobs j ON j.id=k.job_id ORDER BY k.created_at DESC""")
+    _write_simple_sheet(wb, "Contacts", CONTACT_COLUMNS,
+                        [[r["jid"], r["company"], r["role"], r["name"] or "(find manually)", r["title"] or "",
+                          r["email"] or "", r["source"] or "", _email_state(r), (r["last_email"] or "")[:10],
+                          _next_follow_up(r, cfg), "bounced" if r["bounced"] else ("yes " + r["replied"][:10] if r["replied"] else "")]
+                         for r in contacts], status_options)
 
     since = (datetime.now(timezone.utc) - timedelta(days=int(cfg.get("filtered_out_days", 3)))).isoformat()
     filtered = store.query("SELECT company, title, location, filter_reason, url FROM jobs WHERE "

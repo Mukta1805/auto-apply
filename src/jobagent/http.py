@@ -82,14 +82,26 @@ class HttpClient:
             self._host_last[host] = loop.time()
 
     async def get_json(self, url: str, *, params: dict | None = None, etag: str | None = None,
-                       last_modified: str | None = None, expect_404: bool = False) -> FetchResult:
-        headers = {}
+                       last_modified: str | None = None, expect_404: bool = False,
+                       headers: dict | None = None) -> FetchResult:
+        hdrs = dict(headers or {})
         if etag:
-            headers["If-None-Match"] = etag
+            hdrs["If-None-Match"] = etag
         if last_modified:
-            headers["If-Modified-Since"] = last_modified
+            hdrs["If-Modified-Since"] = last_modified
+        res = await self.request_json("GET", url, params=params, headers=hdrs, expect_404=expect_404)
+        if res.status == 304:
+            res.etag, res.last_modified = etag, last_modified
+        return res
+
+    async def request_json(self, method: str, url: str, *, params: dict | None = None, json_body: Any = None,
+                           data: dict | None = None, headers: dict | None = None,
+                           expect_404: bool = False, retry_post: bool = False) -> FetchResult:
+        """Any HTTP method with the same retries/limits. POSTs are only retried on 429/503 or when the
+        caller says the call is safe to repeat (retry_post), so nothing is sent twice by accident."""
         attempt = 0
         loop = asyncio.get_running_loop()
+        retryable = RETRY_STATUS if (method == "GET" or retry_post) else {429, 503}
         while True:
             attempt += 1
             start = loop.time()
@@ -98,12 +110,13 @@ class HttpClient:
                 async with self._host_sem(url), self._global:
                     await self._pace(url)
                     self.stats["requests"] += 1
-                    resp = await self._client.get(url, params=params, headers=headers)
+                    resp = await self._client.request(method, url, params=params, json=json_body, data=data,
+                                                      headers=headers)
                 elapsed = int((loop.time() - start) * 1000)
                 if resp.status_code == 304:
                     self.stats["not_modified"] += 1
-                    return FetchResult(304, not_modified=True, etag=etag, last_modified=last_modified, elapsed_ms=elapsed)
-                if resp.status_code in RETRY_STATUS and attempt <= self.max_retries:
+                    return FetchResult(304, not_modified=True, elapsed_ms=elapsed)
+                if resp.status_code in retryable and attempt <= self.max_retries:
                     delay = self._retry_delay(resp, attempt)
                     self.stats["retries"] += 1
                     log.debug("HTTP %s from %s, retry %d in %.1fs", resp.status_code, url, attempt, delay)
@@ -112,18 +125,22 @@ class HttpClient:
                 if resp.status_code >= 400:
                     if not (expect_404 and resp.status_code == 404):
                         self.stats["errors"] += 1
-                    return FetchResult(resp.status_code, error=f"HTTP {resp.status_code}", elapsed_ms=elapsed)
+                    detail = resp.text[:300] if method != "GET" else ""
+                    return FetchResult(resp.status_code, error=f"HTTP {resp.status_code} {detail}".strip(),
+                                       elapsed_ms=elapsed)
                 body = resp.content
                 self.stats["bytes"] += len(body)
+                if not body:
+                    return FetchResult(resp.status_code, data={}, elapsed_ms=elapsed)
                 try:
-                    data = resp.json()
+                    payload = resp.json()
                 except ValueError:
                     return FetchResult(resp.status_code, error="invalid JSON", elapsed_ms=elapsed, nbytes=len(body))
-                return FetchResult(resp.status_code, data=data, etag=resp.headers.get("ETag"),
+                return FetchResult(resp.status_code, data=payload, etag=resp.headers.get("ETag"),
                                    last_modified=resp.headers.get("Last-Modified"), elapsed_ms=elapsed,
                                    nbytes=len(body))
             except (httpx.TimeoutException, httpx.TransportError) as exc:
-                if attempt <= self.max_retries:
+                if attempt <= self.max_retries and (method == "GET" or retry_post or isinstance(exc, httpx.ConnectError)):
                     self.stats["retries"] += 1
                     delay = min(30.0, 2 ** attempt + random.random())
                     log.debug("%s on %s, retry %d in %.1fs", type(exc).__name__, url, attempt, delay)

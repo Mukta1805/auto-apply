@@ -1,31 +1,37 @@
-# Registers (or updates) the daily scheduled task "RiyaJobAgent".
-#   powershell -ExecutionPolicy Bypass -File scripts\register_task.ps1 [-Time 06:00] [-Remove]
+# Registers (or updates) the two daily scheduled tasks:
+#   RiyaJobAgent          full run (fetch, score, apply, outreach drafts, workbook, summary)  default 06:00
+#   RiyaJobAgentOutreach  Gmail sync, follow-ups and sending, inside business hours            default 10:45
+#   powershell -ExecutionPolicy Bypass -File scripts\register_task.ps1 [-Time 06:00] [-OutreachTime 10:45] [-Remove]
 param(
     [string]$Time = "06:00",
+    [string]$OutreachTime = "10:45",
     [switch]$Remove
 )
 $ErrorActionPreference = "Stop"
-$TaskName = "RiyaJobAgent"
 $Root = Split-Path -Parent $PSScriptRoot
+$Tasks = @{ "RiyaJobAgent" = @{ Mode = "run"; At = $Time; Hours = 4 };
+            "RiyaJobAgentOutreach" = @{ Mode = "outreach"; At = $OutreachTime; Hours = 1 } }
 
 if ($Remove) {
-    Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false
-    Write-Host "Removed scheduled task $TaskName"
+    foreach ($name in $Tasks.Keys) { Unregister-ScheduledTask -TaskName $name -Confirm:$false -ErrorAction SilentlyContinue }
+    Write-Host "Removed scheduled tasks."
     exit 0
 }
 
 $Script = Join-Path $Root "scripts\run_daily.ps1"
-$Action = New-ScheduledTaskAction -Execute "powershell.exe" `
-    -Argument "-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"$Script`"" -WorkingDirectory $Root
-$Trigger = New-ScheduledTaskTrigger -Daily -At $Time
-$Settings = New-ScheduledTaskSettingsSet -WakeToRun -StartWhenAvailable -RunOnlyIfNetworkAvailable `
-    -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -MultipleInstances IgnoreNew `
-    -ExecutionTimeLimit (New-TimeSpan -Hours 4)
-# Interactive: runs while Riya is signed in (phase 2's visible browser needs her desktop session).
+# Interactive: runs while Riya is signed in (the auto-apply browser window needs her desktop session).
 $Principal = New-ScheduledTaskPrincipal -UserId "$env:USERDOMAIN\$env:USERNAME" -LogonType Interactive -RunLevel Limited
-
-Register-ScheduledTask -TaskName $TaskName -Action $Action -Trigger $Trigger -Settings $Settings `
-    -Principal $Principal -Description "Daily job discovery and scoring for Riya" -Force | Out-Null
-Write-Host "Scheduled task '$TaskName' will run daily at $Time." -ForegroundColor Green
-Write-Host "It wakes the laptop if it is asleep and plugged in; if the laptop was off, it runs at next start-up."
-Write-Host "Run it now to test:  Start-ScheduledTask -TaskName $TaskName"
+foreach ($name in $Tasks.Keys) {
+    $t = $Tasks[$name]
+    $Action = New-ScheduledTaskAction -Execute "powershell.exe" `
+        -Argument "-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"$Script`" -Mode $($t.Mode)" -WorkingDirectory $Root
+    $Trigger = New-ScheduledTaskTrigger -Daily -At $t.At
+    $Settings = New-ScheduledTaskSettingsSet -WakeToRun -StartWhenAvailable -RunOnlyIfNetworkAvailable `
+        -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -MultipleInstances IgnoreNew `
+        -ExecutionTimeLimit (New-TimeSpan -Hours $t.Hours)
+    Register-ScheduledTask -TaskName $name -Action $Action -Trigger $Trigger -Settings $Settings `
+        -Principal $Principal -Description "Riya's job agent ($($t.Mode))" -Force | Out-Null
+    Write-Host "Scheduled '$name' daily at $($t.At)." -ForegroundColor Green
+}
+Write-Host "Tasks wake the laptop if it is asleep and plugged in; if it was off, they run at the next start-up."
+Write-Host "Run one now to test:  Start-ScheduledTask -TaskName RiyaJobAgent"

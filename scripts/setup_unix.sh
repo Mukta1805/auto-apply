@@ -7,8 +7,9 @@ PY=${PYTHON:-python3}
 [ -x .venv/bin/python ] || "$PY" -m venv .venv
 .venv/bin/python -m pip install --upgrade pip --quiet
 .venv/bin/python -m pip install -e ".[dev]" --quiet
+.venv/bin/python -m playwright install chromium || echo "Playwright browser install failed; auto-apply needs it."
 [ -f .env ] || { cp .env.example .env; echo "Created .env - add the API keys."; }
 [ -f kb/answers.yaml ] || { cp kb/answers.example.yaml kb/answers.yaml; echo "Created kb/answers.yaml."; }
-mkdir -p data output logs
+mkdir -p data output logs credentials
 .venv/bin/python -m jobagent doctor
 echo "Run tests: .venv/bin/python -m pytest -q"

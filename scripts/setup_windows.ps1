@@ -31,18 +31,23 @@ $Py = Join-Path $Root ".venv\Scripts\python.exe"
 & $Py -m pip install --upgrade pip --quiet
 & $Py -m pip install -e ".[dev]" --quiet
 if ($LASTEXITCODE -ne 0) { throw "pip install failed" }
+# Browser used for auto-apply (Playwright's own Chromium; does not touch Riya's Chrome)
+& $Py -m playwright install chromium
+if ($LASTEXITCODE -ne 0) { Write-Host "Playwright browser install failed; auto-apply won't work until it succeeds." -ForegroundColor Yellow }
 
 # 3. Local files that are never committed
 if (-not (Test-Path ".env")) { Copy-Item ".env.example" ".env"; Write-Host "Created .env - add the API keys to it." -ForegroundColor Yellow }
 if (-not (Test-Path "kb\answers.yaml")) { Copy-Item "kb\answers.example.yaml" "kb\answers.yaml"; Write-Host "Created kb\answers.yaml - fill it in." -ForegroundColor Yellow }
-foreach ($d in @("data", "output", "logs")) { New-Item -ItemType Directory -Force -Path $d | Out-Null }
+foreach ($d in @("data", "output", "logs", "credentials")) { New-Item -ItemType Directory -Force -Path $d | Out-Null }
 
 # 4. Health check
 & $Py -m jobagent doctor
 Write-Host ""
-Write-Host "Next steps:" -ForegroundColor Cyan
-Write-Host "  1. Open .env in Notepad and paste ANTHROPIC_API_KEY (and CONTACT_EMAIL)."
-Write-Host "  2. .venv\Scripts\python -m jobagent doctor --online"
-Write-Host "  3. .venv\Scripts\python -m jobagent detect          (finds each company's job board, ~5 min)"
-Write-Host "  4. .venv\Scripts\python -m jobagent run --limit 30  (first small run)"
-Write-Host "  5. powershell -ExecutionPolicy Bypass -File scripts\register_task.ps1   (daily 6 AM run)"
+Write-Host "Next steps (details in README.md):" -ForegroundColor Cyan
+Write-Host "  1. notepad .env                 -> ANTHROPIC_API_KEY, APOLLO_API_KEY, CONTACT_EMAIL"
+Write-Host "  2. notepad kb\answers.yaml      -> Riya's name, email, phone, LinkedIn (and check the rest)"
+Write-Host "  3. .venv\Scripts\python -m jobagent doctor --online"
+Write-Host "  4. .venv\Scripts\python -m jobagent run --limit 30                (first small run)"
+Write-Host "  5. .venv\Scripts\python -m jobagent apply --dry-run --limit 3     (check the screenshots)"
+Write-Host "  6. .venv\Scripts\python -m jobagent auth-gmail                    (connect Gmail once)"
+Write-Host "  7. powershell -ExecutionPolicy Bypass -File scripts\register_task.ps1"
